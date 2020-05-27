@@ -1,0 +1,95 @@
+#!/bin/sh
+
+change_file="CHANGELOG.md"
+base_branch="master"
+delta_log=$(git log "$base_branch.." --pretty=format:%s)
+
+get_latest_version() {
+    reg="[1234567890]*\.[1234567890]*\.[1234567890]*"
+    git tag --list "$reg" --sort="-v:refname" | head -1 | tr -d "[:blank:]"
+}
+
+search_log() {
+    log=$1
+    keyword=$2
+    echo "$log" | grep -iq "^\s*${keyword}[:(]"
+}
+
+inc_major() {
+    cur_ver=$1
+    cur_major=$(echo "$cur_ver" | sed "s|\(.*\)\..*\..*|\1|")
+    new_major=$(( cur_major + 1 ))
+    echo "$cur_ver" | sed "s|.*\(\..*\..*\)|$new_major\1|"
+}
+
+inc_minor() {
+    cur_ver=$1
+    cur_minor=$(echo "$cur_ver" | sed "s|.*\.\(.*\)\..*|\1|")
+    new_minor=$(( cur_minor + 1 ))
+    echo "$cur_ver" | sed "s|\(.*\.\).*\(\..*\)|\1$new_minor\2|"
+}
+
+inc_patch() {
+    cur_ver=$1
+    cur_patch=$(echo "$cur_ver" | sed "s|.*\..*\.\(.*\)|\1|")
+    new_patch=$(( cur_patch + 1 ))
+    echo "$cur_ver" | sed "s|\(.*\..*\.\).*|\1$new_patch|"
+}
+
+get_new_version() {
+    delta_log=$1
+    cur_ver=$2
+    search_log "$delta_log" "BREAKING CHANGE" && inc_major "$cur_ver"
+    search_log "$delta_log" "feat" && inc_minor "$cur_ver"
+    search_log "$delta_log" "fix" && inc_patch "$cur_ver"
+    echo "$cur_ver"
+}
+
+add_diff_section() {
+    change_file=$1
+    delta_log=$2
+    cur_ver=$3
+    new_ver=$4
+
+    diff="## [$new_ver] - $(date +%F)\\
+### Changed\\"
+
+    IFS="
+"
+    for commit in $delta_log; do
+        diff="$diff
+- $commit\\"
+    done
+
+    diff="$diff
+\\
+"
+
+    sed -i "" -e "s|\(^## \[$cur_ver\]\)|$diff\1|" "$change_file"
+}
+
+update_links() {
+    change_file=$1
+    cur_ver=$2
+    new_ver=$3
+
+    cur_link=$(sed -n "s|^\[$cur_ver\]: \(.*compare\).*|\1|p" "$change_file")
+    new_link="[$new_ver]: $cur_link/$cur_ver...$new_ver\\
+"
+
+    sed -i "" -e "s|\(^\[$cur_ver\]:.*\)|$new_link\1|" "$change_file"
+
+    sed -i "" -e "s|\(^\[Unreleased\]:.*compare\).*|\1/$new_ver...HEAD|" "$change_file"
+}
+
+cur_ver="$(get_latest_version)"
+new_ver="$(get_new_version "$delta_log" "$cur_ver" | head -1)"
+
+[ "$cur_ver" = "$new_ver" ] && echo "Version did not change." >&2 && exit 0
+[ ! -e "$change_file" ] && echo "Couldn't find $change_file" >&2 && exit 1
+
+add_diff_section "$change_file" "$delta_log" "$cur_ver" "$new_ver"
+
+update_links "$change_file" "$cur_ver" "$new_ver"
+
+echo "done"
