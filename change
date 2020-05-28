@@ -1,95 +1,170 @@
 #!/bin/sh
 
 change_file="CHANGELOG.md"
-base_branch="master"
-delta_log=$(git log "$base_branch.." --pretty=format:%s)
 
-get_latest_version() {
-    reg="[1234567890]*\.[1234567890]*\.[1234567890]*"
-    git tag --list "$reg" --sort="-v:refname" | head -1 | tr -d "[:blank:]"
+# TODO add usage
+
+get_version() {
+    echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:].]*\).*|\1|"
 }
 
-search_log() {
-    log=$1
-    keyword=$2
-    echo "$log" | grep -iq "^\s*${keyword}[:(]"
+get_ver_name_date() {
+    date=$(git log -1 --pretty=format:"%ci" "$1" 2> /dev/null | cut -d " " -f 1)
+    [ "$date" ] && { echo "$date"; return; }
+    date +%F
 }
 
-inc_major() {
-    cur_ver=$1
-    cur_major=$(echo "$cur_ver" | sed "s|\(.*\)\..*\..*|\1|")
-    new_major=$(( cur_major + 1 ))
-    echo "$cur_ver" | sed "s|.*\(\..*\..*\)|$new_major\1|"
+format_commits() {
+    echo "### Added"
+    echo "$1" | sed "s|\(.*\)|- \1|"
+    # TODO: restructure message
+    # TODO: sort by heading
 }
 
-inc_minor() {
-    cur_ver=$1
-    cur_minor=$(echo "$cur_ver" | sed "s|.*\.\(.*\)\..*|\1|")
-    new_minor=$(( cur_minor + 1 ))
-    echo "$cur_ver" | sed "s|\(.*\.\).*\(\..*\)|\1$new_minor\2|"
+get_needed_log_ver_names() {
+    latest_git_ver_name=$1
+    latest_log_ver_name=$2
+
+    git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" |
+        sed -n "/$latest_log_ver_name/!p;//q"
+
+    latest_changes=$(git log --pretty=format:"%B" "$latest_git_ver_name..")
+    [ ! "$latest_changes" ] && return
+
+    get_new_version_name "$latest_changes" "$latest_git_ver_name"
 }
 
-inc_patch() {
-    cur_ver=$1
-    cur_patch=$(echo "$cur_ver" | sed "s|.*\..*\.\(.*\)|\1|")
-    new_patch=$(( cur_patch + 1 ))
-    echo "$cur_ver" | sed "s|\(.*\..*\.\).*|\1$new_patch|"
+get_new_version_name() {
+    latest_changes=$1
+    latest_git_ver_name=$2
+
+    echo "$latest_changes" | grep -q ".!: \|BREAKING CHANGE: " &&
+        increment_major "$latest_git_ver_name" && return
+
+    echo "$latest_changes" | grep -q "feat: \|feat(.*): " &&
+        increment_minor "$latest_git_ver_name" && return
+
+    echo "$latest_changes" | grep -q "fix: \|fix(.*): " &&
+        increment_patch "$latest_git_ver_name" && return
 }
 
-get_new_version() {
-    delta_log=$1
-    cur_ver=$2
-    search_log "$delta_log" "BREAKING CHANGE" && inc_major "$cur_ver"
-    search_log "$delta_log" "feat" && inc_minor "$cur_ver"
-    search_log "$delta_log" "fix" && inc_patch "$cur_ver"
-    echo "$cur_ver"
+increment_major() {
+    cur_major=$(echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:]]*\)\..*$|\1|")
+    echo "$1" | sed "s|\(^[^[:digit:]]*\)[[:digit:]]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
 }
 
-add_diff_section() {
-    change_file=$1
-    delta_log=$2
-    cur_ver=$3
-    new_ver=$4
+increment_minor() {
+    cur_minor=$(echo "$1" | sed "s|^.*\.\([[:digit:]]*\)\..*$|\1|")
+    echo "$1" | sed "s|\(^.*\.\)[[:digit:]]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
+}
 
-    diff="## [$new_ver] - $(date +%F)\\
-### Changed\\"
+increment_patch() {
+    cur_patch=$(echo "$1" | sed "s|^.*\.\([[:digit:]]*\).*$|\1|")
+    echo "$1" | sed "s|\(^.*\.\)[[:digit:]]*\(.*$\)|\1$(( cur_patch + 1 ))\2|"
+}
 
-    IFS="
-"
-    for commit in $delta_log; do
-        diff="$diff
-- $commit\\"
-    done
+update_diffs() {
+    latest_git_ver_name=$1
+    latest_log_ver_name=$2
+    needed_log_ver_name=$3
+    latest_log_ver=$(get_version "$latest_log_ver_name")
+    needed_log_ver=$(get_version "$needed_log_ver_name")
+    new_commits=$(get_commits_between "$latest_log_ver_name" \
+        "$latest_log_ver_name" "$needed_log_ver_name")
 
-    diff="$diff
-\\
-"
+    new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
+$(format_commits "$new_commits" | sed "s|$|\\\\|")"
 
-    sed -i "" -e "s|\(^## \[$cur_ver\]\)|$diff\1|" "$change_file"
+    sed -i "" -e "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\\$nl\1|" $change_file
 }
 
 update_links() {
-    change_file=$1
-    cur_ver=$2
-    new_ver=$3
+    latest_log_ver_name=$1
+    needed_log_ver_name=$2
+    latest_log_ver=$(get_version "$latest_log_ver_name")
+    needed_log_ver=$(get_version "$needed_log_ver_name")
+    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
 
-    cur_link=$(sed -n "s|^\[$cur_ver\]: \(.*compare\).*|\1|p" "$change_file")
-    new_link="[$new_ver]: $cur_link/$cur_ver...$new_ver\\
-"
+    new_link="[$needed_log_ver]: $repo_url/compare/$latest_log_ver_name...$needed_log_ver_name"
 
-    sed -i "" -e "s|\(^\[$cur_ver\]:.*\)|$new_link\1|" "$change_file"
+    sed -i "" -e "s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|" "$change_file"
 
-    sed -i "" -e "s|\(^\[Unreleased\]:.*compare\).*|\1/$new_ver...HEAD|" "$change_file"
+    reg="s|\(^\[Unreleased\]:.*\)/$latest_log_ver_name\.\.\.HEAD$|\1/$needed_log_ver_name...HEAD|"
+    sed -i "" -e "$reg" "$change_file"
 }
 
-cur_ver="$(get_latest_version)"
-new_ver="$(get_new_version "$delta_log" "$cur_ver" | head -1)"
+get_commits_between() {
+    latest_git_ver_name=$1
+    latest_log_ver_name=$2
+    needed_log_ver_name=$3
 
-[ "$cur_ver" = "$new_ver" ] && echo "Version did not change." >&2 && exit 0
-[ ! -e "$change_file" ] && echo "Couldn't find $change_file" >&2 && exit 1
+    highest_ver_name=$(printf "%s\n%s\n" "$latest_git_ver_name" "$needed_log_ver_name" |
+        sort -Vr | head -1)
 
-add_diff_section "$change_file" "$delta_log" "$cur_ver" "$new_ver"
+    [ "$latest_git_ver_name" = "$highest_ver_name" ] &&
+        git log --pretty=format:"%s" "$latest_log_ver_name..$needed_log_ver_name" &&
+        return
 
-update_links "$change_file" "$cur_ver" "$new_ver"
+    git log --pretty=format:"%s" "$latest_log_ver_name.."
+}
 
-echo "done"
+make_and_push_tag() {
+    git tag "$1" && git push origin "$1"
+}
+
+init() {
+    first_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="v:refname" | head -1)
+    first_ver=$(get_version "$first_ver_name")
+    first_commits=$(git log --pretty=format:"%s" "$first_ver_name")
+    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
+
+    [ -e "$change_file" ] && { echo "$change_file already exists" >&2; exit 1; }
+    [ ! "$first_ver" ] && { echo "couldn't get first version" >&2; exit 2; }
+
+    echo "# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [$first_ver] - $(get_ver_name_date "$first_ver_name")
+$(format_commits "$first_commits")
+
+[Unreleased]: $repo_url/compare/$first_ver_name...HEAD
+[$first_ver]: $repo_url/releases/tag/$first_ver_name" > "$change_file"
+}
+
+
+#### Start ####
+
+[ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
+[ "$1" = "init" ] && { init; exit; }
+
+[ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
+
+latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
+latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_log_ver_name")
+
+[ ! "$needed_log_ver_names" ] && { echo "there's nothing to add" >&2; exit 0; }
+
+nl="
+"
+IFS="$nl"
+
+for needed_log_ver_name in $needed_log_ver_names; do
+
+    update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
+    update_links "$latest_log_ver_name" "$needed_log_ver_name"
+    echo "added $needed_log_ver_name to $change_file"
+
+    latest_log_ver_name="$needed_log_ver_name"
+done
+
+
+[ "$1" = "-t" ] &&
+    make_and_push_tag "$latest_log_ver_name" &&
+    echo "tagged latest commit as $latest_git_ver_name" &&
+    echo "and pushed tags to origin"
