@@ -51,7 +51,7 @@ fmt_subject() {
     for subject in $rm_prefix; do
         first_char=$(echo "$subject" | cut -c 1 | tr "[:lower:]" "[:upper:]")
 
-        echo "$subject" | sed -e "s|^.\(.*$\)|$first_char\1|" -e "s|\(.*\)|- \1|"
+        echo "$subject" | sed -e "s|^.\(.*$\)|$first_char\1|" -e "s|\(.*\)|- \1.|"
     done
 }
 
@@ -104,7 +104,7 @@ update_diffs() {
 
     latest_log_ver=$(get_version "$latest_log_ver_name")
     needed_log_ver=$(get_version "$needed_log_ver_name")
-    new_commits=$(get_commits_between "$latest_log_ver_name" \
+    new_commits=$(get_commits_between "$latest_git_ver_name" \
         "$latest_log_ver_name" "$needed_log_ver_name")
 
     new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
@@ -170,6 +170,9 @@ $(format_commits "$first_commits")
 
 [Unreleased]: $repo_url/compare/$first_ver_name...HEAD
 [$first_ver]: $repo_url/releases/tag/$first_ver_name" > "$change_file"
+
+    [ ! -e "$change_file" ] && echo "something when wrong while creating $change_file" >&2 && exit 1
+    echo "created $change_file" >&2
 }
 
 
