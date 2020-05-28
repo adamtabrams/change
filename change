@@ -2,7 +2,19 @@
 
 change_file="CHANGELOG.md"
 
-# TODO add usage
+usage() {
+    echo "usage: change [COMMAND/OPTION]"
+    echo ""
+    echo "change"
+    echo "    updates an existing $change_file"
+    echo ""
+    echo "change init"
+    echo "    creates a $change_file with the first version"
+    echo ""
+    echo "change -t"
+    echo "    same as change, but tags the latest commit with"
+    echo "    the new version and pushes that tag to origin"
+}
 
 get_version() {
     echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:].]*\).*|\1|"
@@ -15,10 +27,32 @@ get_ver_name_date() {
 }
 
 format_commits() {
-    echo "### Added"
-    echo "$1" | sed "s|\(.*\)|- \1|"
-    # TODO: restructure message
-    # TODO: sort by heading
+    list="$1"
+
+    dep=$(echo "$list" | grep ".!: ")
+    list=$(echo "$list" | grep -v ".!: ")
+
+    feat=$(echo "$list" | grep -i "^feat: \|^feat(.*):")
+    list=$(echo "$list" | grep -iv "^feat: \|^feat(.*):")
+
+    fix=$(echo "$list" | grep -i "^fix: \|^feat(.*):")
+    list=$(echo "$list" | grep -iv "^fix: \|^feat(.*):")
+
+    [ "$dep" ] && echo "### Deprecated" && fmt_subject "$dep" && echo ""
+    [ "$feat" ] && echo "### Added" && fmt_subject "$feat" && echo ""
+    [ "$fix" ] && echo "### Fixed" && fmt_subject "$fix" && echo ""
+    [ "$list" ] && echo "### Changed" && fmt_subject "$list" && echo ""
+}
+
+fmt_subject() {
+    rm_prefix=$(echo "$1" | sed -e "s|^.*(\(.*\)): \(.*$\)|\2 for \1|" -e "s|^.*: \(.*$\)|\1|")
+
+    IFS="$nl"
+    for subject in $rm_prefix; do
+        first_char=$(echo "$subject" | cut -c 1 | tr "[:lower:]" "[:upper:]")
+
+        echo "$subject" | sed -e "s|^.\(.*$\)|$first_char\1|" -e "s|\(.*\)|- \1|"
+    done
 }
 
 get_needed_log_ver_names() {
@@ -38,13 +72,13 @@ get_new_version_name() {
     latest_changes=$1
     latest_git_ver_name=$2
 
-    echo "$latest_changes" | grep -q ".!: \|BREAKING CHANGE: " &&
+    echo "$latest_changes" | grep -q ".!: \|^BREAKING CHANGE: " &&
         increment_major "$latest_git_ver_name" && return
 
-    echo "$latest_changes" | grep -q "feat: \|feat(.*): " &&
+    echo "$latest_changes" | grep -iq "^feat: \|^feat(.*): " &&
         increment_minor "$latest_git_ver_name" && return
 
-    echo "$latest_changes" | grep -q "fix: \|fix(.*): " &&
+    echo "$latest_changes" | grep -iq "^fix: \|^fix(.*): " &&
         increment_patch "$latest_git_ver_name" && return
 }
 
@@ -67,6 +101,7 @@ update_diffs() {
     latest_git_ver_name=$1
     latest_log_ver_name=$2
     needed_log_ver_name=$3
+
     latest_log_ver=$(get_version "$latest_log_ver_name")
     needed_log_ver=$(get_version "$needed_log_ver_name")
     new_commits=$(get_commits_between "$latest_log_ver_name" \
@@ -75,12 +110,13 @@ update_diffs() {
     new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
 $(format_commits "$new_commits" | sed "s|$|\\\\|")"
 
-    sed -i "" -e "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\\$nl\1|" $change_file
+    sed -i "" -e "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|" $change_file
 }
 
 update_links() {
     latest_log_ver_name=$1
     needed_log_ver_name=$2
+
     latest_log_ver=$(get_version "$latest_log_ver_name")
     needed_log_ver=$(get_version "$needed_log_ver_name")
     repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
@@ -140,6 +176,9 @@ $(format_commits "$first_commits")
 #### Start ####
 
 [ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
+[ "$1" = "-h" ] && { usage; exit; }
+[ "$1" = "help" ] && { usage; exit; }
+[ "$1" = "--help" ] && { usage; exit; }
 [ "$1" = "init" ] && { init; exit; }
 
 [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
@@ -155,14 +194,12 @@ nl="
 IFS="$nl"
 
 for needed_log_ver_name in $needed_log_ver_names; do
-
     update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
     update_links "$latest_log_ver_name" "$needed_log_ver_name"
     echo "added $needed_log_ver_name to $change_file"
 
     latest_log_ver_name="$needed_log_ver_name"
 done
-
 
 [ "$1" = "-t" ] &&
     make_and_push_tag "$latest_log_ver_name" &&
