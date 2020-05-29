@@ -13,9 +13,9 @@ usage() {
     echo "change"
     echo "    updates an existing $change_file"
     echo ""
-    echo "change -t"
-    echo "    same as change, but tags the latest commit with"
-    echo "    the new version and pushes that tag to origin"
+    echo "change tag"
+    echo "    tags the latest commit with the lastest version"
+    echo "    in $change_file and pushes that tag to origin"
     echo ""
     echo "change init"
     echo "    creates a $change_file with the first version"
@@ -97,12 +97,14 @@ get_new_version_name() {
 
 increment_major() {
     cur_major=$(echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:]]*\)\..*$|\1|")
-    echo "$1" | sed "s|\(^[^[:digit:]]*\)[[:digit:]]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
+    echo "$1" | sed "s|\.[[:digit:]]*|.0|g" |
+        sed "s|\(^[^[:digit:]]*\)[[:digit:]]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
 }
 
 increment_minor() {
     cur_minor=$(echo "$1" | sed "s|^.*\.\([[:digit:]]*\)\..*$|\1|")
-    echo "$1" | sed "s|\(^.*\.\)[[:digit:]]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
+    echo "$1" | sed "s|\.[[:digit:]]*|.0|g" |
+        sed "s|\(^.*\.\)[[:digit:]]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
 }
 
 increment_patch() {
@@ -158,7 +160,12 @@ get_commits_between() {
 }
 
 make_and_push_tag() {
-    git tag "$1" && git push origin "$1"
+    latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+
+    git tag "$latest_log_ver_name" &&
+        git push origin "$latest_log_ver_name" &&
+        echo "tagged latest commit as $latest_log_ver_name" &&
+        echo "and pushed tag to origin"
 }
 
 auth() {
@@ -223,12 +230,13 @@ $(format_commits "$first_commits")
 
 [ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
 [ "$1" = "init" ] && { init; exit; }
+[ "$1" = "tag" ] && { make_and_push_tag; exit; }
 [ "$1" = "auth" ] && { auth; exit; }
 [ "$1" = "post" ] && { post_release; exit; }
 [ "$1" = "-h" ] && { usage; exit; }
 [ "$1" = "help" ] && { usage; exit; }
 [ "$1" = "--help" ] && { usage; exit; }
-[ "$1" != "-t" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
+[ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
 
 [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
 
@@ -246,8 +254,3 @@ for needed_log_ver_name in $needed_log_ver_names; do
 
     latest_log_ver_name="$needed_log_ver_name"
 done
-
-[ "$1" = "-t" ] &&
-    make_and_push_tag "$latest_log_ver_name" &&
-    echo "tagged latest commit as $latest_log_ver_name" &&
-    echo "and pushed tags to origin"

@@ -20,10 +20,13 @@ So it's better to let `change` generate one. You can transfer existing messages 
 * `change` can add multiple versions to your changelog, but those version tags need to already exist.
 Otherwise everything since the last version tag is assumed to be for the next version.
 * `change` will figure out what your next version should be from based on your commits and will add that to the changelog as well.
-* By default `change` won't tag the lastest commit with the version it calculated, but it will if you use the `-t` flag.
 
 #### Fill in the details
 * You should validate what was generated and add detail everywhere it's needed.
+
+#### Tag the latest commit with `change tag`
+* This looks at the latest version recorded in the changelog.
+Then it tags the latest commit with that version and pushes the tag to origin.
 
 #### Save a token with `change auth`
 * This saves a personal access token for posting releases.
@@ -31,3 +34,17 @@ Otherwise everything since the last version tag is assumed to be for the next ve
 
 #### Post a release to GitHub with `change post`
 * This posts the section of the latest version in the changelog as a GitHub release.
+
+
+## Workflow
+
+This is the general workflow I use with this tool:
+* make changes to your project
+* record those changes in commits
+    * smaller, more focused commits will help when generating the changelog
+* run `change`
+* improve the new section of the changelog
+* ammend the revised changelog to the last commit with `git commit --amend`
+* run `change tag`
+* push to origin
+* run `change post`
