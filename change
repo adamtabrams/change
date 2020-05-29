@@ -203,11 +203,12 @@ $(format_commits "$first_commits")
 #### Start ####
 
 [ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
+[ "$1" = "init" ] && { init; exit; }
+[ "$1" = "release" ] && { post_release; exit; }
 [ "$1" = "-h" ] && { usage; exit; }
 [ "$1" = "help" ] && { usage; exit; }
 [ "$1" = "--help" ] && { usage; exit; }
-[ "$1" = "init" ] && { init; exit; }
-[ "$1" = "release" ] && { post_release; exit; }
+[ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
 
 [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
 
