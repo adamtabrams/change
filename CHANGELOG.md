@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2020-05-29
+### Fixed
+- For commands that require it, check if it's in a git repo.
+- Corrected return code for checking done at startup.
+- Recognize token BREAKING-CHANGE in the footer.
+
+### Changed
+- Improve usage message added Tips section to README.
+
 ## [0.5.0] - 2020-05-29
 ### Added
 - Use GitHub personal access token for auth.
@@ -48,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.5.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.5.1...HEAD
+[0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/adamtabrams/change/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/adamtabrams/change/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/adamtabrams/change/compare/0.3.0...0.4.0

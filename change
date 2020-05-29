@@ -162,10 +162,11 @@ get_commits_between() {
 startup_checks() {
     ! git rev-parse 2> /dev/null && { echo "you're no in a git repo" >&2; exit 1; }
     [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
+    return 0
 }
 
 make_and_push_tag() {
-    startup_checks || exit 1
+    ! startup_checks && exit 1
 
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
 
@@ -186,7 +187,7 @@ auth() {
 }
 
 post_release() {
-    startup_checks || exit 1
+    ! startup_checks && exit 1
     [ ! -e "$auth_file" ] && { echo "you need to save a token with the auth" >&2; exit 1; }
 
     auth_token=$(base64 -D < "$auth_file")
@@ -248,7 +249,7 @@ $(format_commits "$first_commits")
 [ "$1" = "--help" ] && { usage; exit; }
 [ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
 
-startup_checks || exit 1
+! startup_checks && exit 1
 
 latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
 latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
