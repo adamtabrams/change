@@ -1,6 +1,11 @@
 #!/bin/sh
 
 change_file="CHANGELOG.md"
+xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+auth_dir="$xdg_data_home/change/"
+auth_file="$auth_dir/auth"
+nl="
+"
 
 usage() {
     echo "usage: change [COMMAND/OPTION]"
@@ -15,7 +20,11 @@ usage() {
     echo "change init"
     echo "    creates a $change_file with the first version"
     echo ""
-    echo "change release"
+    echo "change auth"
+    echo "    prompts you for a person access token that"
+    echo "    can be used for posting releases"
+    echo ""
+    echo "change post"
     echo "    posts a GitHub release for the latest version"
     echo "    in $change_file"
 }
@@ -152,8 +161,20 @@ make_and_push_tag() {
     git tag "$1" && git push origin "$1"
 }
 
-# TODO cache password
+auth() {
+    echo "enter a personal access token"
+    printf "token: "
+    read -r token
+
+    [ ! "$token" ] && { echo "invalid token" >&2; exit 1; }
+    [ ! -d "$auth_dir" ] && mkdir -p "$auth_dir"
+    echo "$token" | base64 > "$auth_file" && echo "done"
+}
+
 post_release() {
+    [ ! -e "$auth_file" ] && { echo "you need to save a token with the auth" >&2; exit 1; }
+    auth_token=$(base64 -D < "$auth_file")
+
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
     latest_log_ver=$(get_version "$latest_log_ver_name")
 
@@ -162,12 +183,10 @@ post_release() {
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $change_file | sed "\$d")
     link=$(grep "^\[$latest_log_ver\]: .*" $change_file)
-    nl="
-"
     body=$(echo "$diff$nl$nl$link" | sed "s|$|\\\\|" | tr '\n' 'n')
 
     curl -X POST "$repo_url/releases" \
-        -u "$(git config --get user.email)" \
+        -H "Authorization: token $auth_token" \
         -H "Content-Type: application/json" \
         -d "{\"tag_name\": \"$latest_log_ver_name\", \"name\": \"$latest_log_ver_name\", \"body\": \"$body\" }"
 }
@@ -204,11 +223,12 @@ $(format_commits "$first_commits")
 
 [ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
 [ "$1" = "init" ] && { init; exit; }
-[ "$1" = "release" ] && { post_release; exit; }
+[ "$1" = "auth" ] && { auth; exit; }
+[ "$1" = "post" ] && { post_release; exit; }
 [ "$1" = "-h" ] && { usage; exit; }
 [ "$1" = "help" ] && { usage; exit; }
 [ "$1" = "--help" ] && { usage; exit; }
-[ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
+[ "$1" != "-t" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
 
 [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
 
@@ -218,10 +238,7 @@ needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_
 
 [ ! "$needed_log_ver_names" ] && { echo "there's nothing to add" >&2; exit 0; }
 
-nl="
-"
 IFS="$nl"
-
 for needed_log_ver_name in $needed_log_ver_names; do
     update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
     update_links "$latest_log_ver_name" "$needed_log_ver_name"
@@ -232,5 +249,5 @@ done
 
 [ "$1" = "-t" ] &&
     make_and_push_tag "$latest_log_ver_name" &&
-    echo "tagged latest commit as $latest_git_ver_name" &&
+    echo "tagged latest commit as $latest_log_ver_name" &&
     echo "and pushed tags to origin"

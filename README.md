@@ -25,5 +25,9 @@ Otherwise everything since the last version tag is assumed to be for the next ve
 #### Fill in the details
 * You should validate what was generated and add detail everywhere it's needed.
 
-#### Post a release to GitHub with `change release`
-* This posts the section for the latest version in the changelog as a GitHub release.
+#### Save a token with `change auth`
+* This saves a personal access token for posting releases.
+* Here are [instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token) for making one.
+
+#### Post a release to GitHub with `change post`
+* This posts the section of the latest version in the changelog as a GitHub release.
