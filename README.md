@@ -48,3 +48,9 @@ This is the general workflow I use with this tool:
 * run `change tag`
 * push to origin
 * run `change post`
+
+
+# Tips
+
+With the help of curl, you can run this tool without installing it:
+* `curl -s "https://raw.githubusercontent.com/adamtabrams/change/master/change" | sh -s --` [args]

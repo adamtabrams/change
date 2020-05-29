@@ -8,7 +8,7 @@ nl="
 "
 
 usage() {
-    echo "usage: change [COMMAND/OPTION]"
+    echo "usage: change [COMMAND]"
     echo ""
     echo "change"
     echo "    updates an existing $change_file"
