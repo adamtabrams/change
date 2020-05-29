@@ -85,7 +85,7 @@ get_new_version_name() {
     latest_changes=$1
     latest_git_ver_name=$2
 
-    echo "$latest_changes" | grep -q ".!: \|^BREAKING CHANGE: " &&
+    echo "$latest_changes" | grep -q ".!: \|^BREAKING.CHANGE: " &&
         increment_major "$latest_git_ver_name" && return
 
     echo "$latest_changes" | grep -iq "^feat: \|^feat(.*): " &&
