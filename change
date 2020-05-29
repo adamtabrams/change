@@ -73,7 +73,7 @@ get_needed_log_ver_names() {
     latest_log_ver_name=$2
 
     git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" |
-        sed -n "/$latest_log_ver_name/!p;//q"
+        sed -n "/$latest_log_ver_name/!p;//q" | sed '1!G;h;$!d'
 
     latest_changes=$(git log --pretty=format:"%B" "$latest_git_ver_name..")
     [ ! "$latest_changes" ] && return
@@ -123,7 +123,7 @@ update_diffs() {
         "$latest_log_ver_name" "$needed_log_ver_name")
 
     new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
-$(format_commits "$new_commits" | sed "s|$|\\\\|")"
+$(format_commits "$new_commits" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
 
     sed -i "" -e "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|" $change_file
 }
@@ -153,8 +153,7 @@ get_commits_between() {
         sort -Vr | head -1)
 
     [ "$latest_git_ver_name" = "$highest_ver_name" ] &&
-        git log --pretty=format:"%s" "$latest_log_ver_name..$needed_log_ver_name" &&
-        return
+        git log --pretty=format:"%s" "$latest_log_ver_name..$needed_log_ver_name" && return
 
     git log --pretty=format:"%s" "$latest_log_ver_name.."
 }
@@ -199,7 +198,7 @@ post_release() {
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $change_file | sed "\$d")
     link=$(grep "^\[$latest_log_ver\]: .*" $change_file)
-    body=$(echo "$diff$nl$nl$link" | sed "s|$|\\\\|" | tr '\n' 'n')
+    body=$(echo "$diff$nl$nl$link" | sed -e "s|\([\"\\]\)|\\\\\1|g" -e "s|$|\\\\|" | tr '\n' 'n')
 
     curl -X POST "$repo_url/releases" \
         -H "Authorization: token $auth_token" \
@@ -255,7 +254,7 @@ latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:ref
 latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
 needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_log_ver_name")
 
-[ ! "$needed_log_ver_names" ] && { echo "there's nothing to add" >&2; exit 0; }
+[ ! "$needed_log_ver_names" ] && { echo "no new versions to add" >&2; exit 0; }
 
 IFS="$nl"
 for needed_log_ver_name in $needed_log_ver_names; do
