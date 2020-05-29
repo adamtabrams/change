@@ -159,7 +159,14 @@ get_commits_between() {
     git log --pretty=format:"%s" "$latest_log_ver_name.."
 }
 
+startup_checks() {
+    ! git rev-parse 2> /dev/null && { echo "you're no in a git repo" >&2; exit 1; }
+    [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
+}
+
 make_and_push_tag() {
+    startup_checks || exit 1
+
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
 
     git tag "$latest_log_ver_name" &&
@@ -179,9 +186,10 @@ auth() {
 }
 
 post_release() {
+    startup_checks || exit 1
     [ ! -e "$auth_file" ] && { echo "you need to save a token with the auth" >&2; exit 1; }
-    auth_token=$(base64 -D < "$auth_file")
 
+    auth_token=$(base64 -D < "$auth_file")
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
     latest_log_ver=$(get_version "$latest_log_ver_name")
 
@@ -199,6 +207,8 @@ post_release() {
 }
 
 init() {
+    ! git rev-parse 2> /dev/null && { echo "you're no in a git repo" >&2; exit 1; }
+
     first_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="v:refname" | head -1)
     first_ver=$(get_version "$first_ver_name")
     first_commits=$(git log --pretty=format:"%s" "$first_ver_name")
@@ -238,7 +248,7 @@ $(format_commits "$first_commits")
 [ "$1" = "--help" ] && { usage; exit; }
 [ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
 
-[ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; exit 1; }
+startup_checks || exit 1
 
 latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
 latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
