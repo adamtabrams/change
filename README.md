@@ -22,9 +22,8 @@ Otherwise everything since the last version tag is assumed to be for the next ve
 * `change` will figure out what your next version should be from based on your commits and will add that to the changelog as well.
 * By default `change` won't tag the lastest commit with the version it calculated, but it will if you use the `-t` flag.
 
-#### Finally, make it better
+#### Fill in the details
 * You should validate what was generated and add detail everywhere it's needed.
 
-
-## Tips
-* You can use the -r flag to post each section being added to the changelog as a release on GitHub.
+#### Post a release to GitHub with `change release`
+* This posts the section for the latest version in the changelog as a GitHub release.
