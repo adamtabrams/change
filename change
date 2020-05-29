@@ -14,6 +14,10 @@ usage() {
     echo "change -t"
     echo "    same as change, but tags the latest commit with"
     echo "    the new version and pushes that tag to origin"
+    echo ""
+    echo "change -r"
+    echo "    same as change, but posts each added version"
+    echo "    to GitHub as a release"
 }
 
 get_version() {
@@ -109,6 +113,7 @@ update_diffs() {
 
     new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
 $(format_commits "$new_commits" | sed "s|$|\\\\|")"
+    echo "$new_section"
 
     sed -i "" -e "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|" $change_file
 }
@@ -122,6 +127,7 @@ update_links() {
     repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
 
     new_link="[$needed_log_ver]: $repo_url/compare/$latest_log_ver_name...$needed_log_ver_name"
+    echo "$new_link"
 
     sed -i "" -e "s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|" "$change_file"
 
@@ -146,6 +152,19 @@ get_commits_between() {
 
 make_and_push_tag() {
     git tag "$1" && git push origin "$1"
+}
+
+post_release() { # TODO cache password
+    ver_name=$1
+    body=$(echo "$2$nl$3\\" | tr '\n' 'n')
+
+    repo_url=$(git config --get remote.origin.url |
+        sed -e "s|\(.*\)\.git|\1|" -e "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
+
+    curl -X POST "$repo_url/releases" \
+        -u "$(git config --get user.email)" \
+        -H "Content-Type: application/json" \
+        -d "{\"tag_name\": \"$ver_name\", \"name\": \"$ver_name\", \"body\": \"$body\" }"
 }
 
 init() {
@@ -197,9 +216,11 @@ nl="
 IFS="$nl"
 
 for needed_log_ver_name in $needed_log_ver_names; do
-    update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
-    update_links "$latest_log_ver_name" "$needed_log_ver_name"
+    section=$(update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name")
+    link=$(update_links "$latest_log_ver_name" "$needed_log_ver_name")
     echo "added $needed_log_ver_name to $change_file"
+
+    [ "$1" = "-r" ] && post_release "$needed_log_ver_name" "$section" "$link"
 
     latest_log_ver_name="$needed_log_ver_name"
 done

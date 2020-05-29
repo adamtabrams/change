@@ -5,16 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Password caching and keychain integration.
+- Option to post only the latest version as a release.
+- Multiple flags at once.
 
 ## [0.3.0] - 2020-05-28
 ### Added
-- Formatting and grouping commit messages based on prefix.
+- Format and group commit messages.
 
 ### Fixed
-- Problem with showing commit message under multiple versions.
+- Sort commits to proper versions.
 
 ### Changed
-- Added a section for About and Usage in the README.
+- Add About and Usage sections to README.
 
 ## [0.2.0] - 2020-05-28
 ### Added

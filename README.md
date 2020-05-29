@@ -11,16 +11,20 @@ But it can do some of the work!
 # Usage
 
 #### First generate a changelog with `change init`
-* You need to have a least one commit tagged with valid SemVer (like 0.1.0 or v0.0.1)
+* You need to have a least one commit tagged with valid SemVer (like 0.1.0 or v0.0.1).
 
 * `change` probably won't work well with a changelog that's formatted differently.
-So it's probably better to let `change` generate one and then you can transfer whatevery you want.
+So it's better to let `change` generate one. You can transfer existing messages after.
 
 #### Now populate the rest of it with `change`
 * `change` can add multiple versions to your changelog, but those version tags need to already exist.
 Otherwise everything since the last version tag is assumed to be for the next version.
-* `change` will figure out what your next version should be from based on your commits and will add that to the changelog.
+* `change` will figure out what your next version should be from based on your commits and will add that to the changelog as well.
 * By default `change` won't tag the lastest commit with the version it calculated, but it will if you use the `-t` flag.
 
 #### Finally, make it better
-* You should now validate what was generated and add detail everywhere it's needed.
+* You should validate what was generated and add detail everywhere it's needed.
+
+
+## Tips
+* You can use the -r flag to post each section being added to the changelog as a release on GitHub.
