@@ -45,11 +45,11 @@ format_commits() {
     dep=$(echo "$list" | grep ".!: ")
     list=$(echo "$list" | grep -v ".!: ")
 
-    feat=$(echo "$list" | grep -i "^feat: \|^feat(.*):")
-    list=$(echo "$list" | grep -iv "^feat: \|^feat(.*):")
+    feat=$(echo "$list" | grep -i "^feat: \|^feat(.*): ")
+    list=$(echo "$list" | grep -iv "^feat: \|^feat(.*): ")
 
-    fix=$(echo "$list" | grep -i "^fix: \|^feat(.*):")
-    list=$(echo "$list" | grep -iv "^fix: \|^feat(.*):")
+    fix=$(echo "$list" | grep -i "^fix: \|^fix(.*): ")
+    list=$(echo "$list" | grep -iv "^fix: \|^fix(.*): ")
 
     [ "$dep" ] && echo "### Deprecated" && fmt_subject "$dep" && echo ""
     [ "$feat" ] && echo "### Added" && fmt_subject "$feat" && echo ""
