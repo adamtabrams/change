@@ -35,6 +35,12 @@ Then it tags the latest commit with that version and pushes the tag to origin.
 #### Post a release to GitHub with `change post`
 * This posts the section of the latest version in the changelog as a GitHub release.
 
+#### Combine multiple commands with `change all`
+* First `change` is run.
+* Then you changelog is opened in $EDITOR (or vi if nothing is set).
+* As long as the changelog was updated, it amends it to your last commit.
+* Finally `change tag` and `change post` are run.
+
 
 ## Workflow
 
