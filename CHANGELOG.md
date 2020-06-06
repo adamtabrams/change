@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling within functions. Replaced exit with return.
+- Removed editor prompt when amending with all command.
+
+### Changed
+- Update workflow section in readme.
+
 ## [0.6.0] - 2020-06-06
 ### Added
 - Created a change all command for improved workflow.
@@ -13,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Corrected typo in regex for sorting commits.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -28,6 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Version sorting needed to be reversed.
 - Escape more character for use in sed and curl.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -51,6 +73,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improve usage message added Tips section to README.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -87,6 +116,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `release` command to `post`.
 - Changed `-t` command to `tag`.
 
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
+
 ## [0.6.0] - 2020-06-06
 ### Added
 - Add change all command.
@@ -120,6 +156,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.1] - 2020-05-28
 ### Fixed
 - Error handling for unknown arguments.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -163,6 +206,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add changelog for the project (shocker right).
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -217,6 +267,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add About and Usage sections to README.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -276,6 +333,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Completely refactored the tool.
 - Created feature for generating the initial changelog.
+
+## [0.6.1] - 2020-06-06
+### Fixed
+- Error handling and all command.
+
+### Changed
+- Update workflow section in readme.
 
 ## [0.6.0] - 2020-06-06
 ### Added
@@ -339,7 +403,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
@@ -349,27 +414,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.3.0]: https://github.com/adamtabrams/change/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/adamtabrams/change/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/adamtabrams/change/compare/0.6.0...0.1.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/adamtabrams/change/compare/0.4.1...0.5.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/adamtabrams/change/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/adamtabrams/change/compare/0.4.0...0.4.1
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/adamtabrams/change/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/adamtabrams/change/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/adamtabrams/change/compare/0.3.0...0.4.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
@@ -377,6 +449,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.4.1]: https://github.com/adamtabrams/change/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/adamtabrams/change/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/adamtabrams/change/compare/0.2.0...0.3.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1
@@ -385,6 +458,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.4.0]: https://github.com/adamtabrams/change/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/adamtabrams/change/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/adamtabrams/change/compare/0.1.0...0.2.0
+[0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/adamtabrams/change/compare/0.5.0...0.5.1

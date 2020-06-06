@@ -48,12 +48,10 @@ This is the general workflow I use with this tool:
 * make changes to your project
 * record those changes in commits
     * smaller, more focused commits will help when generating the changelog
-* run `change`
+* run `change all`
 * improve the new section of the changelog
-* ammend the revised changelog to the last commit with `git commit --amend`
-* run `change tag`
+* save and close the file
 * push to origin
-* run `change post`
 
 
 # Tips
