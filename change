@@ -27,6 +27,11 @@ usage() {
     echo "change post"
     echo "    posts a GitHub release for the latest version"
     echo "    in $change_file"
+    echo ""
+    echo "change all"
+    echo "    runs change, then opens $change_file in \$EDITOR,"
+    echo "    amends $change_file to your last commit, runs"
+    echo "    change tag, and then runs change post."
 }
 
 get_version() {
@@ -235,32 +240,45 @@ $(format_commits "$first_commits")
     echo "created $change_file" >&2
 }
 
+run_all() {
+    change_file || exit 1
+    first_change=$(stat -qf "%Sc" $change_file)
+    ${EDITOR:-vi} $change_file
+    last_change=$(stat -qf "%Sc" $change_file)
+    [ "$first_change" = "$last_change" ] &&
+        echo "cancelling because no manual edits were made to $change_file" >&2 &&
+        exit 1
+    git add $change_file && git commit --amend && make_and_push_tag && post_release
+}
 
-#### Start ####
+change_file() {
+    ! startup_checks && exit 1
+
+    latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
+    latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+    needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_log_ver_name")
+
+    [ ! "$needed_log_ver_names" ] && { echo "no new versions to add" >&2; exit 0; }
+
+    IFS="$nl"
+    for needed_log_ver_name in $needed_log_ver_names; do
+        update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
+        update_links "$latest_log_ver_name" "$needed_log_ver_name"
+        echo "added $needed_log_ver_name to $change_file"
+
+        latest_log_ver_name="$needed_log_ver_name"
+    done
+}
+
 
 [ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
+[ ! "$1" ] && { change_file; exit; }
 [ "$1" = "init" ] && { init; exit; }
 [ "$1" = "tag" ] && { make_and_push_tag; exit; }
 [ "$1" = "auth" ] && { auth; exit; }
 [ "$1" = "post" ] && { post_release; exit; }
+[ "$1" = "all" ] && { run_all; exit; }
 [ "$1" = "-h" ] && { usage; exit; }
 [ "$1" = "help" ] && { usage; exit; }
 [ "$1" = "--help" ] && { usage; exit; }
 [ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
-
-! startup_checks && exit 1
-
-latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
-latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
-needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_log_ver_name")
-
-[ ! "$needed_log_ver_names" ] && { echo "no new versions to add" >&2; exit 0; }
-
-IFS="$nl"
-for needed_log_ver_name in $needed_log_ver_names; do
-    update_diffs "$latest_git_ver_name" "$latest_log_ver_name" "$needed_log_ver_name"
-    update_links "$latest_log_ver_name" "$needed_log_ver_name"
-    echo "added $needed_log_ver_name to $change_file"
-
-    latest_log_ver_name="$needed_log_ver_name"
-done
