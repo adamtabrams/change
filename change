@@ -244,16 +244,19 @@ $(format_commits "$first_commits")
 }
 
 run_all() {
-    change_file
+    save_file=$(cat $change_file)
+    ! modify_file  && return 1
     first_change=$(stat -qf "%Sc" $change_file)
     ${EDITOR:-vi} $change_file
     last_change=$(stat -qf "%Sc" $change_file)
     [ "$first_change" = "$last_change" ] &&
-        echo "cancelling because no manual edits were made to $change_file" >&2 && return 1
+        echo "cancelling because no manual edits were made to $change_file" >&2 &&
+        echo "$save_file" > $change_file &&
+        return 1
     git add $change_file && git commit --amend --no-edit && make_and_push_tag && post_release
 }
 
-change_file() {
+modify_file() {
     ! startup_checks && return 1
 
     latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
@@ -272,15 +275,14 @@ change_file() {
     done
 }
 
-
-[ "$2" ] && { echo "change currently accepts only one argument" >&2; exit 1; }
-[ ! "$1" ] && { change_file; exit; }
-[ "$1" = "init" ] && { init; exit; }
-[ "$1" = "tag" ] && { make_and_push_tag; exit; }
-[ "$1" = "auth" ] && { auth; exit; }
-[ "$1" = "post" ] && { post_release; exit; }
-[ "$1" = "all" ] && { run_all; exit; }
-[ "$1" = "-h" ] && { usage; exit; }
-[ "$1" = "help" ] && { usage; exit; }
-[ "$1" = "--help" ] && { usage; exit; }
-[ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
+[ "$2"            ] && { echo "change currently accepts only one argument" >&2; exit 1; }
+[ ! "$1"          ] && { modify_file;       exit; }
+[ "$1" = "init"   ] && { init;              exit; }
+[ "$1" = "tag"    ] && { make_and_push_tag; exit; }
+[ "$1" = "auth"   ] && { auth;              exit; }
+[ "$1" = "post"   ] && { post_release;      exit; }
+[ "$1" = "all"    ] && { run_all;           exit; }
+[ "$1" = "-h"     ] && { usage;             exit; }
+[ "$1" = "help"   ] && { usage;             exit; }
+[ "$1" = "--help" ] && { usage;             exit; }
+[ "$1"            ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }

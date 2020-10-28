@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2020-10-28
+### Added
+- Revert file when `change all` command is cancelled (see #1).
+
+### Changed
+- Removed duplicates in changelog added during testing.
+
 ## [0.6.1] - 2020-06-06
 ### Fixed
 - Error handling within functions. Replaced exit with return.
@@ -75,7 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.6.1...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/adamtabrams/change/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/adamtabrams/change/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/adamtabrams/change/compare/0.5.1...0.5.2
