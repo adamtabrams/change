@@ -18,7 +18,7 @@ So it's better to let `change` generate one. You can transfer existing messages 
 
 #### Now populate the rest of it with `change`
 * `change` can add multiple versions to your changelog, but those version tags need to already exist.
-Otherwise everything since the last version tag is assumed to be for the next version.
+Otherwise, it assumes everything since the last version tag is for the next version.
 * `change` will figure out what your next version should be from based on your commits and will add that to the changelog as well.
 
 #### Fill in the details
@@ -36,10 +36,11 @@ Then it tags the latest commit with that version and pushes the tag to origin.
 * This posts the section of the latest version in the changelog as a GitHub release.
 
 #### Combine multiple commands with `change all`
-* First `change` is run.
-* Then you changelog is opened in $EDITOR (or vi if nothing is set).
-* As long as the changelog was updated, it amends it to your last commit.
-* Finally `change tag` and `change post` are run.
+* First it runs the `change` command.
+* Then it opens your changelog with $EDITOR (or vi if that isn't set).
+* As long as you updated the changelog, it amends it to your last commit.
+* Lastly, it runs `change tag` and `change post`.
+* I use this command most often.
 
 
 ## Workflow
@@ -56,5 +57,5 @@ This is the general workflow I use with this tool:
 
 # Tips
 
-With the help of curl, you can run this tool without installing it:
+With the help of curl, you can even run this tool without installing it:
 * `curl -s "https://raw.githubusercontent.com/adamtabrams/change/master/change" | sh -s --` [args]
