@@ -196,7 +196,7 @@ post_release() {
     ! startup_checks && return 1
     [ ! -e "$auth_file" ] && { echo "you need to save a token with the auth" >&2; return 1; }
 
-    auth_token=$(base64 -D < "$auth_file")
+    auth_token=$(base64 --decode < "$auth_file")
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
     latest_log_ver=$(get_version "$latest_log_ver_name")
 
