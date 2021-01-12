@@ -20,9 +20,10 @@ usage() {
     echo "change init"
     echo "    creates a $change_file with the first version"
     echo ""
-    echo "change auth"
-    echo "    prompts you for a person access token that"
-    echo "    can be used for posting releases"
+    echo "change auth [TOKEN]"
+    echo "    prompts you for a personal access token that"
+    echo "    can be used when posting releases"
+    echo "    optional: give token as argument instead of prompt"
     echo ""
     echo "change post"
     echo "    posts a GitHub release for the latest version"
@@ -183,9 +184,11 @@ make_and_push_tag() {
 }
 
 auth() {
-    echo "enter a personal access token"
-    printf "token: "
-    read -r token
+    token=$1
+    [ ! "$token" ] &&
+        echo "enter a personal access token" &&
+        printf "token: " &&
+        read -r token
 
     [ ! "$token" ] && { echo "invalid token" >&2; return 1; }
     [ ! -d "$auth_dir" ] && mkdir -p "$auth_dir"
@@ -275,11 +278,11 @@ modify_file() {
     done
 }
 
-[ "$2"            ] && { echo "change currently accepts only one argument" >&2; exit 1; }
 [ ! "$1"          ] && { modify_file;       exit; }
+[ "$1" = "auth"   ] && { auth "$2";         exit; }
+[ "$2"            ] && { echo "only auth can use more than one argument" >&2; exit 1; }
 [ "$1" = "init"   ] && { init;              exit; }
 [ "$1" = "tag"    ] && { make_and_push_tag; exit; }
-[ "$1" = "auth"   ] && { auth;              exit; }
 [ "$1" = "post"   ] && { post_release;      exit; }
 [ "$1" = "all"    ] && { run_all;           exit; }
 [ "$1" = "-h"     ] && { usage;             exit; }

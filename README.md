@@ -31,6 +31,7 @@ Then it tags the latest commit with that version and pushes the tag to origin.
 #### Save a token with `change auth`
 * This saves a personal access token for posting releases.
 * Here are [instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token) for making one.
+* Optionally, you can provide the token non-interactively: `change auth [TOKEN]`
 
 #### Post a release to GitHub with `change post`
 * This posts the section of the latest version in the changelog as a GitHub release.
@@ -58,4 +59,4 @@ This is the general workflow I use with this tool:
 # Tips
 
 With the help of curl, you can even run this tool without installing it:
-* `curl -s "https://raw.githubusercontent.com/adamtabrams/change/master/change" | sh -s --` [args]
+* `curl -s "https://raw.githubusercontent.com/adamtabrams/change/master/change" | sh -s -- [args]`

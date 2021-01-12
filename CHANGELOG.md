@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2021-01-11
+### Added
+- Added an option to provide a token for the auth command as another argument.
+
 ## [0.7.1] - 2021-01-07
 ### Fixed
 - Use `--decode` arg with base64 to get proper behavior with BSD and GNU versions.
@@ -89,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.7.1...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/adamtabrams/change/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/adamtabrams/change/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/adamtabrams/change/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/adamtabrams/change/compare/0.6.0...0.6.1
