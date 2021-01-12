@@ -60,3 +60,14 @@ This is the general workflow I use with this tool:
 
 With the help of curl, you can even run this tool without installing it:
 * `curl -s "https://raw.githubusercontent.com/adamtabrams/change/master/change" | sh -s -- [args]`
+* If you're using `change` like this for CICD, you may want to pick a specific version (instead of master)
+
+If you use `change` often, add it to your path. Here are some options for how:
+* Create a link to the script in your current path (my favorite):
+    * `ln -s /path/to/change/script ~/.local/bin/change`
+* Add the script's directory to your path:
+    * `export PATH="/path/to/change/repo:${PATH};"`
+    * You would probably put this in a file like: .bashrc, .profile, .zprofile, etc
+* Copy the script to your current path:
+    * `cp /path/to/change/script ~/.local/bin/`
+    * Drawback: the `change` executable will remain at its version when the command was used.
