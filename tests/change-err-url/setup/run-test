@@ -8,15 +8,6 @@ git add results
 git commit --quiet -am "fix: add second file"
 git tag 0.1.0
 
-git add exp-stderr
-git commit --quiet -am "fix: add third file"
-git tag 0.1.1
-
-git add exp-stdout
-git commit --quiet -am "feat: add fourth file"
-
-git remote add origin https://github.com/adamtabrams/change.git
-
 change >act-stdout 2>act-stderr
 
 rm -rf ./.git

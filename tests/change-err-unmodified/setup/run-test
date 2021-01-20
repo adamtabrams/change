@@ -6,14 +6,10 @@ git add run-test
 git commit --quiet -am "feat: add first file"
 git add results
 git commit --quiet -am "fix: add second file"
-git tag "v0.0.1"
-
-git add exp-stderr
-git commit --quiet -am "feat: add third file"
-git tag "v0.0.2"
+git tag 0.1.0
 
 git remote add origin https://github.com/adamtabrams/change.git
 
-change init >act-stdout 2>act-stderr
+change >act-stdout 2>act-stderr
 
 rm -rf ./.git

@@ -1,0 +1,46 @@
+#!/bin/sh
+
+git init --quiet
+
+git add run-test
+git commit --quiet -am "feat: add first file"
+git add results
+git commit --quiet -am "fix: add second file"
+git tag 0.1.0
+
+git add exp-stderr
+git commit --quiet -am "fix: tilda ~ escaped tick \`"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am "chore: escaped apostrophe \' escaped quote \""
+
+git add exp-stderr
+git commit --quiet -am "fix: 'apostrophe pair' \`escaped tick pair\`"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am "chore: single backslash \ escaped backslash \\ "
+
+git add exp-stderr
+git commit --quiet -am "fix: four backslashes \\\\ exclamation !"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am 'chore: colon exclamation :! "quote pair"'
+
+git add exp-stderr
+git commit --quiet -am "fix: asterisk * escaped asterisk \*"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am "chore: emoji :+1: pr #2 user @adamtabrams"
+
+git add exp-stderr
+git commit --quiet -am "fix: Website https://github.com/adamtabrams"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am "chore: fix: parse(this): one"
+
+git add exp-stderr
+git commit --quiet -am "fix: (paren pair) {curly pair} [square pair]"
+git rm --quiet --cached exp-stderr
+git commit --quiet -am "chore: [file link](./run-test)"
+
+
+git remote add origin https://github.com/adamtabrams/change.git
+
+change >act-stdout 2>act-stderr
+
+rm -rf ./.git
