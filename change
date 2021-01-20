@@ -53,8 +53,8 @@ get_ver_name_date() {
 format_commits() {
     list="$1"
 
-    dep=$(echo "$list" | grep ".!: ")
-    list=$(echo "$list" | grep -v ".!: ")
+    dep=$(echo "$list" | grep "^[^ ]*!: ")
+    list=$(echo "$list" | grep -v "^[^ ]*!: ")
 
     feat=$(echo "$list" | grep -i "^feat: \|^feat(.*): ")
     list=$(echo "$list" | grep -iv "^feat: \|^feat(.*): ")
@@ -69,7 +69,7 @@ format_commits() {
 }
 
 fmt_subject() {
-    rm_prefix=$(echo "$1" | sed -e "s|^.*(\(.*\)): \(.*$\)|\2 for \1|" -e "s|^.*: \(.*$\)|\1|")
+    rm_prefix=$(echo "$1" | sed -e "s|^[^ ]*(\(.*\))!*: \(.*$\)|\2 for \1|" -e "s|^[^ ]*: \(.*$\)|\1|")
 
     IFS="$nl"
     for subject in $rm_prefix; do
@@ -172,8 +172,10 @@ get_commits_between() {
 }
 
 startup_checks() {
-    ! git rev-parse 2> /dev/null && { echo "you're not in a git repo" >&2; return 1; }
     [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; return 1; }
+    [ ! -d .git ] && { echo "the current directory doesn't contain .git" >&2; return 1; }
+    ! git config --get remote.origin.url >/dev/null &&
+        { echo "remote origin url isn't set for this repo" >&2; return 1; }
     return 0
 }
 
