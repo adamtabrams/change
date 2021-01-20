@@ -1,0 +1,38 @@
+#!/bin/sh
+
+all_tests=$*
+num_fails=0
+num_tests=0
+[ $# = 0 ] && all_tests="./*"
+[ $# != 1 ] && echo "Running tests"
+
+for test in $all_tests; do
+    [ -f "$test" ] && continue
+
+    # Setup
+    save_dir=$(pwd)
+    cd "$test" || exit 1
+    [ -d actual ] && rm -rf actual
+    cp -r setup actual
+
+    # Run
+    cd actual || exit 1
+    [ $# != 1 ] && echo
+    echo "$test:"
+    ./run-test
+
+    # Results
+    new_fails=$(./results | tee /dev/tty | grep -c "^[^ ]*FAIL")
+    num_fails=$((num_fails + new_fails))
+    num_tests=$((num_tests + 1))
+
+    # Cleanup
+    cd "$save_dir" || exit 1
+done
+
+echo
+[ $# != 1 ] && echo "Total number of tests: $num_tests"
+echo "Total number of failures: $num_fails"
+
+[ $num_fails -gt 0 ] && exit 1
+exit 0
