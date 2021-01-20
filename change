@@ -35,8 +35,13 @@ usage() {
     echo "    change tag, and then runs change post."
 }
 
-get_version() {
-    echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:].]*\).*|\1|"
+get_versions() {
+    reverse=${1:-v} # sending arg "-v" reverses the list
+    git tag --list "[0-9]*\.[0-9]*.*" "v[0-9]*\.[0-9]*" --sort="${reverse}:refname"
+}
+
+rm_ver_prefix() {
+    echo "$1" | sed "s|^[^0-9]*\([0-9.]*\).*|\1|"
 }
 
 get_ver_name_date() {
@@ -78,7 +83,7 @@ get_needed_log_ver_names() {
     latest_git_ver_name=$1
     latest_log_ver_name=$2
 
-    tags=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname")
+    tags=$(get_versions -v)
 
     ! echo "$tags" | grep -q "$latest_log_ver_name" && return 0
     echo "$tags" | sed -n "/$latest_log_ver_name/!p;//q" | sed '1!G;h;$!d'
@@ -104,20 +109,20 @@ get_new_version_name() {
 }
 
 increment_major() {
-    cur_major=$(echo "$1" | sed "s|^[^[:digit:]]*\([[:digit:]]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[[:digit:]]*|.0|g" |
-        sed "s|\(^[^[:digit:]]*\)[[:digit:]]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
+    cur_major=$(echo "$1" | sed "s|^[^0-9]*\([0-9]*\)\..*$|\1|")
+    echo "$1" | sed "s|\.[0-9]*|.0|g" |
+        sed "s|\(^[^0-9]*\)[0-9]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
 }
 
 increment_minor() {
-    cur_minor=$(echo "$1" | sed "s|^.*\.\([[:digit:]]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[[:digit:]]*|.0|g" |
-        sed "s|\(^.*\.\)[[:digit:]]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
+    cur_minor=$(echo "$1" | sed "s|^.*\.\([0-9]*\)\..*$|\1|")
+    echo "$1" | sed "s|\.[0-9]*|.0|g" |
+        sed "s|\(^.*\.\)[0-9]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
 }
 
 increment_patch() {
-    cur_patch=$(echo "$1" | sed "s|^.*\.\([[:digit:]]*\).*$|\1|")
-    echo "$1" | sed "s|\(^.*\.\)[[:digit:]]*\(.*$\)|\1$(( cur_patch + 1 ))\2|"
+    cur_patch=$(echo "$1" | sed "s|^.*\.\([0-9]*\).*$|\1|")
+    echo "$1" | sed "s|\(^.*\.\)[0-9]*\(.*$\)|\1$(( cur_patch + 1 ))\2|"
 }
 
 update_diffs() {
@@ -125,8 +130,8 @@ update_diffs() {
     latest_log_ver_name=$2
     needed_log_ver_name=$3
 
-    latest_log_ver=$(get_version "$latest_log_ver_name")
-    needed_log_ver=$(get_version "$needed_log_ver_name")
+    latest_log_ver=$(rm_ver_prefix "$latest_log_ver_name")
+    needed_log_ver=$(rm_ver_prefix "$needed_log_ver_name")
     new_commits=$(get_commits_between "$latest_git_ver_name" \
         "$latest_log_ver_name" "$needed_log_ver_name")
 
@@ -140,8 +145,8 @@ update_links() {
     latest_log_ver_name=$1
     needed_log_ver_name=$2
 
-    latest_log_ver=$(get_version "$latest_log_ver_name")
-    needed_log_ver=$(get_version "$needed_log_ver_name")
+    latest_log_ver=$(rm_ver_prefix "$latest_log_ver_name")
+    needed_log_ver=$(rm_ver_prefix "$needed_log_ver_name")
     repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
 
     new_link="[$needed_log_ver]: $repo_url/compare/$latest_log_ver_name...$needed_log_ver_name"
@@ -167,7 +172,7 @@ get_commits_between() {
 }
 
 startup_checks() {
-    ! git rev-parse 2> /dev/null && { echo "you're no in a git repo" >&2; return 1; }
+    ! git rev-parse 2> /dev/null && { echo "you're not in a git repo" >&2; return 1; }
     [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; return 1; }
     return 0
 }
@@ -201,7 +206,7 @@ post_release() {
 
     auth_token=$(base64 --decode < "$auth_file")
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
-    latest_log_ver=$(get_version "$latest_log_ver_name")
+    latest_log_ver=$(rm_ver_prefix "$latest_log_ver_name")
 
     repo_url=$(git config --get remote.origin.url |
         sed -e "s|\(.*\)\.git|\1|" -e "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
@@ -217,15 +222,20 @@ post_release() {
 }
 
 init() {
-    ! git rev-parse 2> /dev/null && { echo "you're no in a git repo" >&2; return 1; }
-
-    first_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="v:refname" | head -1)
-    first_ver=$(get_version "$first_ver_name")
-    first_commits=$(git log --pretty=format:"%s" "$first_ver_name")
-    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
-
+    [ ! -d .git ] && { echo "the current directory doesn't contain .git" >&2; return 1; }
     [ -e "$change_file" ] && { echo "$change_file already exists" >&2; return 1; }
+
+    first_ver_name=$(get_versions | head -1)
+    [ ! "$first_ver_name" ] && { echo "couldn't find any valid version tags" >&2; return 2; }
+
+    first_ver=$(rm_ver_prefix "$first_ver_name")
     [ ! "$first_ver" ] && { echo "couldn't get first version" >&2; return 2; }
+
+    first_commits=$(git log --pretty=format:"%s" "$first_ver_name")
+    [ ! "$first_commits" ] && { echo "couldn't get first commits" >&2; return 2; }
+
+    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
+    [ ! "$repo_url" ] && { echo "remote origin url isn't set for this repo" >&2; return 1; }
 
     echo "# Changelog
 All notable changes to this project will be documented in this file.
@@ -243,7 +253,7 @@ $(format_commits "$first_commits")
 
     [ ! -e "$change_file" ] &&
         echo "something when wrong while creating $change_file" >&2 && return 1
-    echo "created $change_file" >&2
+    echo "created $change_file"
 }
 
 run_all() {
@@ -262,11 +272,11 @@ run_all() {
 modify_file() {
     ! startup_checks && return 1
 
-    latest_git_ver_name=$(git tag --list "[[:digit:]]*\.[[:digit:]]*" --sort="-v:refname" | head -1)
+    latest_git_ver_name=$(get_versions -v | head -1)
     latest_log_ver_name=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
     needed_log_ver_names=$(get_needed_log_ver_names "$latest_git_ver_name" "$latest_log_ver_name")
 
-    [ ! "$needed_log_ver_names" ] && { echo "no new versions to add" >&2; return 1; }
+    [ ! "$needed_log_ver_names" ] && { echo "no new versions to add"; return 1; }
 
     IFS="$nl"
     for needed_log_ver_name in $needed_log_ver_names; do

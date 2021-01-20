@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-01-19
+### Added
+- Added a testing suite for more reliable behavior!
+
+### Changed
+- Fix version prefix handling (example v0.1.0)
+- Improved some of the error messages for init.
+- Give tips for adding the script to PATH in the README.
+
 ## [0.8.0] - 2021-01-11
 ### Added
 - Added an option to provide a token for the auth command as another argument.
@@ -93,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/adamtabrams/change/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/adamtabrams/change/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/adamtabrams/change/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/adamtabrams/change/compare/0.6.1...0.7.0
