@@ -1,0 +1,11 @@
+#!/bin/sh
+
+git init --quiet
+
+git add run-test
+git commit --quiet -am "feat: add first file"
+git tag 0.0.1
+
+change init >act-stdout 2>act-stderr
+
+rm -rf ./.git

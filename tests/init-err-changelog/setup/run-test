@@ -1,0 +1,7 @@
+#!/bin/sh
+
+git init --quiet
+
+change init >act-stdout 2>act-stderr
+
+rm -rf ./.git

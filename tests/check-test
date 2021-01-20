@@ -1,0 +1,22 @@
+#!/bin/sh
+
+for test in "$@"; do
+    [ -f "$test" ] && continue
+
+    # Setup
+    save_dir=$(pwd)
+    cd "$test" || exit 1
+    [ -d actual ] && rm -rf actual
+    cp -r setup actual
+
+    # Run
+    cd actual || exit 1
+    echo "Running $test"
+    ./run-test
+
+    # Results
+    ./check-results || exit 1
+
+    # Cleanup
+    cd "$save_dir" || exit 1
+done

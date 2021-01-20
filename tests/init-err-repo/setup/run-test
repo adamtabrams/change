@@ -1,0 +1,3 @@
+#!/bin/sh
+
+change init >act-stdout 2>act-stderr

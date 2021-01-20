@@ -1,0 +1,24 @@
+#!/bin/sh
+
+testname="$(basename "$(cd .. && pwd)")"
+
+if cmp --silent act-stdout exp-stdout; then
+    echo "PASS"
+else
+    echo "FAIL - $testname: stdout did not match"
+fi
+
+if cmp --silent act-stderr exp-stderr; then
+    echo "PASS"
+else
+    echo "FAIL - $testname: stderr did not match"
+fi
+
+date=$(date +%Y-%m-%d)
+sed "s/~~SUB-DATE~~/$date/" template-CHANGELOG.md > exp-CHANGELOG.md
+
+if cmp --silent CHANGELOG.md exp-CHANGELOG.md; then
+    echo "PASS"
+else
+    echo "FAIL - $testname: changelog did not match"
+fi
