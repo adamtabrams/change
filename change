@@ -9,26 +9,26 @@ nl="
 
 usage() {
     echo "usage: change [COMMAND]"
-    echo ""
+    echo
     echo "change"
     echo "    updates an existing $change_file"
-    echo ""
+    echo
     echo "change tag"
     echo "    tags the latest commit with the lastest version"
     echo "    in $change_file and pushes that tag to origin"
-    echo ""
+    echo
     echo "change init"
     echo "    creates a $change_file with the first version"
-    echo ""
+    echo
     echo "change auth [TOKEN]"
     echo "    prompts you for a personal access token that"
     echo "    can be used when posting releases"
     echo "    optional: give token as argument instead of prompt"
-    echo ""
+    echo
     echo "change post"
     echo "    posts a GitHub release for the latest version"
     echo "    in $change_file"
-    echo ""
+    echo
     echo "change all"
     echo "    runs change, then opens $change_file in \$EDITOR,"
     echo "    amends $change_file to your last commit, runs"
@@ -199,7 +199,7 @@ auth() {
 
     [ ! "$token" ] && { echo "invalid token" >&2; return 1; }
     [ ! -d "$auth_dir" ] && mkdir -p "$auth_dir"
-    echo "$token" | base64 > "$auth_file" && echo "done"
+    echo "$token" | base64 > "$auth_file" && echo "git auth saved"
 }
 
 post_release() {
