@@ -281,7 +281,8 @@ run_all() {
         echo "cancelling because no manual edits were made to $change_file" >&2 &&
         echo "$save_file" > $change_file &&
         return 1
-    git add $change_file && git commit --amend --no-edit && make_and_push_tag -p && post_release
+    git add $change_file && git push --quiet origin &&
+        git commit --amend --no-edit && make_and_push_tag -p && post_release
 }
 
 modify_file() {
