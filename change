@@ -13,26 +13,26 @@ usage() {
     echo "change"
     echo "    updates an existing $change_file"
     echo
-    echo "change tag"
-    echo "    tags the latest commit with the lastest version"
-    echo "    in $change_file and pushes that tag to origin"
+    echo "change tag [-p]"
+    echo "    tags the latest local commit with the lastest $change_file version"
+    echo "    optional: -p also pushes that tag to origin"
+    echo
+    echo "change post [--dry-run]"
+    echo "    posts a GitHub release for the latest version in $change_file"
+    echo "    optional: --dry-run prints url, version, and body without sending"
+    echo
+    echo "change auth [TOKEN]"
+    echo "    prompts you for a personal access token for posting releases"
+    echo "    optional: give token as argument instead of with prompt"
     echo
     echo "change init"
     echo "    creates a $change_file with the first version"
     echo
-    echo "change auth [TOKEN]"
-    echo "    prompts you for a personal access token that"
-    echo "    can be used when posting releases"
-    echo "    optional: give token as argument instead of prompt"
-    echo
-    echo "change post"
-    echo "    posts a GitHub release for the latest version"
-    echo "    in $change_file"
-    echo
     echo "change all"
-    echo "    runs change, then opens $change_file in \$EDITOR,"
-    echo "    amends $change_file to your last commit, runs"
-    echo "    change tag, and then runs change post."
+    echo "    runs change, then opens $change_file in \$EDITOR"
+    echo "    amends $change_file to your last commit"
+    echo "    pushes the last commit to origin"
+    echo "    runs change tag -p and then runs change post"
 }
 
 get_versions() {
