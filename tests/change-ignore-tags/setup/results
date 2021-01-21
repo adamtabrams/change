@@ -1,0 +1,29 @@
+#!/bin/sh
+
+testname="$(basename "$(cd .. && pwd)")"
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORMAL=$(tput sgr0)
+
+if cmp --silent act-stdout exp-stdout; then
+    echo "${GREEN}PASS"
+else
+    echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
+fi
+
+if cmp --silent act-stderr exp-stderr; then
+    echo "${GREEN}PASS"
+else
+    echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
+fi
+
+date=$(date +%Y-%m-%d)
+sed "s/~~SUB-DATE~~/$date/" CHANGELOG-template.md > CHANGELOG-exp.md
+
+if cmp --silent CHANGELOG.md CHANGELOG-exp.md; then
+    echo "${GREEN}PASS"
+else
+    echo "${RED}FAIL ${NORMAL}- $testname: changelog did not match"
+fi
+
+printf "%s" "$NORMAL"

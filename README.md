@@ -26,7 +26,8 @@ Otherwise, it assumes everything since the last version tag is for the next vers
 
 #### Tag the latest commit with `change tag`
 * This looks at the latest version recorded in the changelog.
-Then it tags the latest commit with that version and pushes the tag to origin.
+Then it tags the latest commit with that version.
+* Optionally, you can provide -p to push the new version: `change tag -p`
 
 #### Save a token with `change auth`
 * This saves a personal access token for posting releases.
@@ -35,12 +36,14 @@ Then it tags the latest commit with that version and pushes the tag to origin.
 
 #### Post a release to GitHub with `change post`
 * This posts the section of the latest version in the changelog as a GitHub release.
+* Optionally, you can provide --dry-run see the url, version, and message body without
+creating the release: `change post --dry-run`
 
 #### Combine multiple commands with `change all`
 * First it runs the `change` command.
 * Then it opens your changelog with $EDITOR (or vi if that isn't set).
-* As long as you updated the changelog, it amends it to your last commit.
-* Lastly, it runs `change tag` and `change post`.
+* As long as you updated the changelog, it amends it to your last commit and pushes to origin.
+* Lastly, it runs `change tag -p` and `change post`.
 * I use this command most often.
 
 
@@ -53,7 +56,6 @@ This is the general workflow I use with this tool:
 * run `change all`
 * improve the new section of the changelog
 * save and close the file
-* push to origin
 
 
 # Tips

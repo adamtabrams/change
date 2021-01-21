@@ -1,0 +1,3 @@
+#!/bin/sh
+
+change ta >act-stdout 2>act-stderr

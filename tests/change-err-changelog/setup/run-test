@@ -1,0 +1,15 @@
+#!/bin/sh
+
+git init --quiet
+
+git add run-test
+git commit --quiet -am "feat: add first file"
+git add results
+git commit --quiet -am "fix: add second file"
+git tag 0.1.0
+
+git remote add origin https://github.com/adamtabrams/change.git
+
+change >act-stdout 2>act-stderr
+
+rm -rf ./.git

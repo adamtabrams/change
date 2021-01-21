@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2021-01-21
+### Added
+- Add --dry-run flag to `change post` to see the release without making it.
+- Add -p flag to `change tag` for optionally pushing new tag.
+
+### Fixed
+- Improve behavior for `change all`.
+- Improve commit parsing and git repo detection.
+
+### Changed
+- Update --help and README with new flags.
+- Update test script and improve readability.
+- Add new tests and improve structure.
+- Add tests for different version formats.
+- Add tests for tag, post, and other args.
+- Add more tests.
+
 ## [0.9.0] - 2021-01-19
 ### Added
 - Added a testing suite for more reliable behavior!
@@ -102,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.9.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/adamtabrams/change/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/adamtabrams/change/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/adamtabrams/change/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/adamtabrams/change/compare/0.7.0...0.7.1

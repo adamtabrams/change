@@ -1,0 +1,3 @@
+tagged latest commit as v0.2.0
+to push the latest tag use: git push origin v0.2.0
+to push all local tags use: git push origin --tags

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+XDG_DATA_HOME=$(pwd) change auth 1234 >act-stdout 2>act-stderr

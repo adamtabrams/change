@@ -1,0 +1,3 @@
+https://api.github.com/repos/adamtabrams/change
+0.1.1
+## [0.1.1] - 2021-01-21\n### Fixed\n- (paren pair) {curly pair} [square pair].\n- Website https://github.com/adamtabrams.\n- Asterisk * escaped asterisk \\*.\n- Four backslashes \\ exclamation !.\n- 'apostrophe pair' `escaped tick pair`.\n- Tilda ~ escaped tick `.\n\n### Changed\n- [file link](./run-test).\n- Fix: parse(this): one.\n- Emoji :+1: pr #2 user @adamtabrams.\n- Colon exclamation :! \"quote pair\".\n- Single backslash \\ escaped backslash \\.\n- Escaped apostrophe \\' escaped quote \".\n\n[0.1.1]: https://github.com/adamtabrams/change/compare/0.1.0...0.1.1\n
