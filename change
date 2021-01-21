@@ -37,7 +37,7 @@ usage() {
 
 get_versions() {
     reverse=${1:-v} # sending arg "-v" reverses the list
-    git tag --list "[0-9]*\.[0-9]*.*" "v[0-9]*\.[0-9]*" --sort="${reverse}:refname"
+    git tag --list "[0-9]*\.[0-9]*.*" "v[0-9]*\.[0-9]*.*" --sort="${reverse}:refname"
 }
 
 rm_ver_prefix() {

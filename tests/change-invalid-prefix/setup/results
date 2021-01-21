@@ -11,18 +11,19 @@ else
     echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
 fi
 
-change --help >> exp-stderr
-
 if cmp --silent act-stderr exp-stderr; then
     echo "${GREEN}PASS"
 else
     echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
 fi
 
-if [ ! -e CHANGELOG.md ]; then
+date=$(date +%Y-%m-%d)
+sed "s/~~SUB-DATE~~/$date/" CHANGELOG-template.md > CHANGELOG-exp.md
+
+if cmp --silent CHANGELOG.md CHANGELOG-exp.md; then
     echo "${GREEN}PASS"
 else
-    echo "${RED}FAIL ${NORMAL}- $testname: created changelog"
+    echo "${RED}FAIL ${NORMAL}- $testname: changelog did not match"
 fi
 
 printf "%s" "$NORMAL"
