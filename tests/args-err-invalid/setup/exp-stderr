@@ -1,0 +1,27 @@
+couldn't recognize argument
+
+usage: change [COMMAND]
+
+change
+    updates an existing CHANGELOG.md
+
+change tag
+    tags the latest commit with the lastest version
+    in CHANGELOG.md and pushes that tag to origin
+
+change init
+    creates a CHANGELOG.md with the first version
+
+change auth [TOKEN]
+    prompts you for a personal access token that
+    can be used when posting releases
+    optional: give token as argument instead of prompt
+
+change post
+    posts a GitHub release for the latest version
+    in CHANGELOG.md
+
+change all
+    runs change, then opens CHANGELOG.md in $EDITOR,
+    amends CHANGELOG.md to your last commit, runs
+    change tag, and then runs change post.
