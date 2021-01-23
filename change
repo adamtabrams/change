@@ -41,7 +41,11 @@ get_versions() {
 }
 
 rm_ver_prefix() {
-    echo "$1" | sed "s|^[^0-9]*\([0-9.]*\).*|\1|"
+    echo "$1" | sed "s|^[^0-9]*\([0-9.]*.*\)|\1|"
+}
+
+rm_ver_suffix() {
+    sed "s|\(^[^0-9]*[0-9.]*\).*|\1|"
 }
 
 get_ver_name_date() {
@@ -79,19 +83,21 @@ fmt_subject() {
     done
 }
 
-get_needed_log_ver_names() {
-    latest_git_ver_name=$1
-    latest_log_ver_name=$2
+increment_major() {
+    cur_major=$(echo "$1" | sed "s|^[^0-9]*\([0-9]*\)\..*$|\1|")
+    echo "$1" | sed "s|\.[0-9]*|.0|g" |
+        sed "s|\(^[^0-9]*\)[0-9]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
+}
 
-    tags=$(get_versions -v)
+increment_minor() {
+    cur_minor=$(echo "$1" | sed "s|^.*\.\([0-9]*\)\..*$|\1|")
+    echo "$1" | sed "s|\.[0-9]*|.0|g" |
+        sed "s|\(^.*\.\)[0-9]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
+}
 
-    ! echo "$tags" | grep -q "$latest_log_ver_name" && return 0
-    echo "$tags" | sed -n "/$latest_log_ver_name/!p;//q" | sed '1!G;h;$!d'
-
-    latest_changes=$(git log --pretty=format:"%B" "$latest_git_ver_name..")
-    [ ! "$latest_changes" ] && return
-
-    get_new_version_name "$latest_changes" "$latest_git_ver_name"
+increment_patch() {
+    cur_patch=$(echo "$1" | sed "s|^.*\.\([0-9]*\).*$|\1|")
+    echo "$1" | sed "s|\(^.*\.\)[0-9]*\(.*$\)|\1$(( cur_patch + 1 ))\2|"
 }
 
 get_new_version_name() {
@@ -108,21 +114,19 @@ get_new_version_name() {
         increment_patch "$latest_git_ver_name" && return
 }
 
-increment_major() {
-    cur_major=$(echo "$1" | sed "s|^[^0-9]*\([0-9]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[0-9]*|.0|g" |
-        sed "s|\(^[^0-9]*\)[0-9]*\(\..*$\)|\1$(( cur_major + 1 ))\2|"
-}
+get_needed_log_ver_names() {
+    latest_git_ver_name=$1
+    latest_log_ver_name=$2
 
-increment_minor() {
-    cur_minor=$(echo "$1" | sed "s|^.*\.\([0-9]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[0-9]*|.0|g" |
-        sed "s|\(^.*\.\)[0-9]*\(\..*$\)|\1$(( cur_minor + 1 ))\2|"
-}
+    tags=$(get_versions -v)
 
-increment_patch() {
-    cur_patch=$(echo "$1" | sed "s|^.*\.\([0-9]*\).*$|\1|")
-    echo "$1" | sed "s|\(^.*\.\)[0-9]*\(.*$\)|\1$(( cur_patch + 1 ))\2|"
+    ! echo "$tags" | grep -q "$latest_log_ver_name" && return 0
+    echo "$tags" | sed -n "/$latest_log_ver_name/!p;//q" | sed '1!G;h;$!d'
+
+    latest_changes=$(git log --pretty=format:"%B" "$latest_git_ver_name..")
+    [ ! "$latest_changes" ] && return
+
+    get_new_version_name "$latest_changes" "$latest_git_ver_name" | rm_ver_suffix
 }
 
 update_diffs() {

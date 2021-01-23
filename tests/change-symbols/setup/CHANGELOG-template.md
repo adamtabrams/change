@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Asterisk * escaped asterisk \*.
 - Four backslashes \ exclamation !.
 - 'apostrophe pair' `escaped tick pair`.
-- Tilda ~ escaped tick `.
+- Tilda ~ escaped tick ` ampersand &.
 
 ### Changed
 - [file link](./run-test).
