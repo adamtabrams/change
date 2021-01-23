@@ -30,8 +30,7 @@ usage() {
     echo
     echo "change all"
     echo "    runs change, then opens $change_file in \$EDITOR"
-    echo "    amends $change_file to your last commit"
-    echo "    pushes the last commit to origin"
+    echo "    commits and pushes the $change_file to origin"
     echo "    runs change tag -p and then runs change post"
 }
 
@@ -286,7 +285,7 @@ run_all() {
         echo "$save_file" > $change_file &&
         return 1
     git add $change_file &&
-        git commit --quiet --amend --no-edit &&
+        git commit --quiet -m "docs: update changelog" &&
         git push --quiet origin &&
         make_and_push_tag -p && post_release
 }

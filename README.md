@@ -42,7 +42,7 @@ creating the release: `change post --dry-run`
 #### Combine multiple commands with `change all`
 * First it runs the `change` command.
 * Then it opens your changelog with $EDITOR (or vi if that isn't set).
-* As long as you updated the changelog, it amends it to your last commit and pushes to origin.
+* As long as you updated the changelog, it commits and pushes it to origin.
 * Lastly, it runs `change tag -p` and `change post`.
 * I use this command most often.
 
