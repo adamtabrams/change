@@ -3,7 +3,8 @@
 all_tests=$*
 num_fails=0
 num_tests=0
-[ $# = 0 ] && all_tests="./*"
+
+[ $# = 0 ] && all_tests="./tests/*"
 [ $# != 1 ] && echo "Running tests"
 
 for test in $all_tests; do
@@ -18,7 +19,7 @@ for test in $all_tests; do
     # Run
     cd actual || exit 1
     [ $# != 1 ] && echo
-    echo "$test:"
+    basename "$test:"
     ./run-test
 
     # Results

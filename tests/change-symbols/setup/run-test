@@ -9,7 +9,7 @@ git commit --quiet -am "fix: add second file"
 git tag 0.1.0
 
 git add exp-stderr
-git commit --quiet -am "fix: tilda ~ escaped tick \`"
+git commit --quiet -am "fix: tilda ~ escaped tick \` ampersand &"
 git rm --quiet --cached exp-stderr
 git commit --quiet -am "chore: escaped apostrophe \' escaped quote \""
 

@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2021-01-27
+### Added
+- Suffixes are now shown in changelog versions.
+- Automated version tags won't use suffixes.
+
+### Fixed
+- Use separate commit for `change all` instead of appending to previous commit.
+
+### Changed
+- Move function.
+- Add "&" to symbols test.
+- Improve repo layout.
+
 ## [0.10.0] - 2021-01-21
 ### Added
 - Add --dry-run flag to `change post` to see the release without making it.
@@ -119,7 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.10.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.11.0...HEAD
+[0.11.0]: https://github.com/adamtabrams/change/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/adamtabrams/change/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/adamtabrams/change/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/adamtabrams/change/compare/0.7.1...0.8.0

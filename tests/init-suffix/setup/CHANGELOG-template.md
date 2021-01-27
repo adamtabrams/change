@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.1] - ~~SUB-DATE~~
+## [0.0.1-alpha+001] - ~~SUB-DATE~~
 ### Added
 - Add first file.
 
@@ -14,4 +14,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add second file.
 
 [Unreleased]: https://github.com/adamtabrams/change/compare/v0.0.1-alpha+001...HEAD
-[0.0.1]: https://github.com/adamtabrams/change/releases/tag/v0.0.1-alpha+001
+[0.0.1-alpha+001]: https://github.com/adamtabrams/change/releases/tag/v0.0.1-alpha+001
