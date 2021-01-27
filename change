@@ -53,6 +53,17 @@ get_ver_name_date() {
     date +%F
 }
 
+fmt_subject() {
+    rm_prefix=$(echo "$1" | sed -e "s|^[^ ]*(\(.*\))!*: \(.*$\)|\2 for \1|" -e "s|^[^ ]*: \(.*$\)|\1|")
+
+    IFS="$nl"
+    for subject in $rm_prefix; do
+        first_char=$(echo "$subject" | cut -c 1 | tr "[:lower:]" "[:upper:]")
+
+        echo "$subject" | sed -e "s|^.\(.*$\)|$first_char\1|" -e "s|\(.*\)|- \1.|"
+    done
+}
+
 format_commits() {
     list="$1"
 
@@ -69,17 +80,6 @@ format_commits() {
     [ "$feat" ] && echo "### Added" && fmt_subject "$feat" && echo ""
     [ "$fix" ] && echo "### Fixed" && fmt_subject "$fix" && echo ""
     [ "$list" ] && echo "### Changed" && fmt_subject "$list" && echo ""
-}
-
-fmt_subject() {
-    rm_prefix=$(echo "$1" | sed -e "s|^[^ ]*(\(.*\))!*: \(.*$\)|\2 for \1|" -e "s|^[^ ]*: \(.*$\)|\1|")
-
-    IFS="$nl"
-    for subject in $rm_prefix; do
-        first_char=$(echo "$subject" | cut -c 1 | tr "[:lower:]" "[:upper:]")
-
-        echo "$subject" | sed -e "s|^.\(.*$\)|$first_char\1|" -e "s|\(.*\)|- \1.|"
-    done
 }
 
 increment_major() {
