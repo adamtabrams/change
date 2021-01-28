@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+
+      - name: Run a no-op
+        run: echo "true"
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          git config --global user.name "ci"
+          git config --global user.email "ci@test.com"
+          ./run-test
