@@ -19,4 +19,4 @@ jobs:
       - name: Run a multi-line script
         run: |
           echo testing
-          ls
+          ./run-test
