@@ -3,12 +3,15 @@
 all_tests=$*
 num_fails=0
 num_tests=0
+IFS="
+"
 
 [ $# = 0 ] && all_tests="./tests/*"
 [ $# != 1 ] && echo "Running tests"
 
 for test in $all_tests; do
     [ -f "$test" ] && continue
+    num_tests=$((num_tests + 1))
 
     # Setup
     save_dir=$(pwd)
@@ -23,9 +26,11 @@ for test in $all_tests; do
     ./run-test
 
     # Results
-    new_fails=$(./results | tee /dev/tty | grep -c "^[^ ]*FAIL")
-    num_fails=$((num_fails + new_fails))
-    num_tests=$((num_tests + 1))
+    for line in $(./results); do
+        echo "$line"
+        new_fails=$(echo "$line" | grep -c "^[^ ]*FAIL")
+        num_fails=$((num_fails + new_fails))
+    done
 
     # Cleanup
     cd "$save_dir" || exit 1
