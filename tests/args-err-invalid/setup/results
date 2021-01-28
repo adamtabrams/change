@@ -1,12 +1,9 @@
 #!/bin/sh
 
-testname="$(basename "$(cd .. && pwd)")"
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-NORMAL=$(tput sgr0)
+. ../../.test-resources
 
 if cmp --silent act-stdout exp-stdout; then
-    echo "${GREEN}PASS"
+    echo "${GREEN}PASS${NORMAL}"
 else
     echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
 fi
@@ -14,15 +11,13 @@ fi
 change --help >> exp-stderr
 
 if cmp --silent act-stderr exp-stderr; then
-    echo "${GREEN}PASS"
+    echo "${GREEN}PASS${NORMAL}"
 else
     echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
 fi
 
 if [ ! -e CHANGELOG.md ]; then
-    echo "${GREEN}PASS"
+    echo "${GREEN}PASS${NORMAL}"
 else
     echo "${RED}FAIL ${NORMAL}- $testname: created changelog"
 fi
-
-printf "%s" "$NORMAL"
