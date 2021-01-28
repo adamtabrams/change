@@ -1,4 +1,4 @@
-![CI](https://github.com/adamtabrams/change/workflows/CI/badge.svg)
+![tests](https://github.com/adamtabrams/change/workflows/CI/badge.svg)
 
 # About
 
