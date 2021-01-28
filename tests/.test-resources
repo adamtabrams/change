@@ -1,5 +1,0 @@
-testname="$(basename "$(cd .. && pwd)")"
-
-RED=$(tput setaf 1 2>/dev/null)
-GREEN=$(tput setaf 2 2>/dev/null)
-NORMAL=$(tput sgr0 2>/dev/null)

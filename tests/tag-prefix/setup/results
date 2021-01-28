@@ -1,27 +1,10 @@
 #!/bin/sh
 
-. ../../.test-resources
+. ../../.test-resources.sh
 
-if cmp --silent act-stdout exp-stdout; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
-fi
+compare_stdout
+compare_stderr
 
-if cmp --silent act-stderr exp-stderr; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
-fi
+compare_tags
 
-if cmp --silent act-tags exp-tags; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: tags did not match"
-fi
-
-if cmp --silent CHANGELOG.md CHANGELOG-exp.md; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: changelog did not match"
-fi
+compare_changelog

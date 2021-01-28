@@ -1,21 +1,8 @@
 #!/bin/sh
 
-. ../../.test-resources
+. ../../.test-resources.sh
 
-if cmp --silent act-stdout exp-stdout; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
-fi
+compare_stdout
+compare_stderr
 
-if cmp --silent act-stderr exp-stderr; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
-fi
-
-if [ ! -e CHANGELOG.md ]; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: created changelog"
-fi
+no_changelog

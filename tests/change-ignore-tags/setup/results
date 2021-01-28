@@ -1,24 +1,9 @@
 #!/bin/sh
 
-. ../../.test-resources
+. ../../.test-resources.sh
 
-if cmp --silent act-stdout exp-stdout; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stdout did not match"
-fi
+compare_stdout
+compare_stderr
 
-if cmp --silent act-stderr exp-stderr; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: stderr did not match"
-fi
-
-date=$(date +%Y-%m-%d)
-sed "s/~~SUB-DATE~~/$date/" CHANGELOG-template.md > CHANGELOG-exp.md
-
-if cmp --silent CHANGELOG.md CHANGELOG-exp.md; then
-    echo "${GREEN}PASS${NORMAL}"
-else
-    echo "${RED}FAIL ${NORMAL}- $testname: changelog did not match"
-fi
+gen_changelog_exp
+compare_changelog
