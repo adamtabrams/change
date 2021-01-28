@@ -1,3 +1,5 @@
+![CI](https://github.com/adamtabrams/change/workflows/CI/badge.svg)
+
 # About
 
 The goal of `change` is to take the grunt work out of formatting changelogs. It combines the ideas from
