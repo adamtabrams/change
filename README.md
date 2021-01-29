@@ -1,4 +1,7 @@
-![tests](https://github.com/adamtabrams/change/workflows/CI/badge.svg)
+![lint](https://github.com/adamtabrams/change/workflows/lint/badge.svg)
+![linux](https://github.com/adamtabrams/change/workflows/linux/badge.svg)
+![macOS](https://github.com/adamtabrams/change/workflows/macOS/badge.svg)
+
 
 # About
 
