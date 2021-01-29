@@ -1,0 +1,18 @@
+name: macOS
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run all tests
+        run: |
+          git config --global user.name "ci"
+          git config --global user.email "ci@test.com"
+          ./run-test

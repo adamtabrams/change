@@ -1,7 +1,9 @@
 #!/bin/sh
 
-git init --quiet
+cur_dir=$(pwd)
+export XDG_DATA_HOME=$cur_dir
 
+git init --quiet
 git remote add origin https://github.com/adamtabrams/change.git
 
 change post --dry-run >act-stdout 2>act-stderr
