@@ -141,7 +141,8 @@ update_diffs() {
     new_section="## [$needed_log_ver] - $(get_ver_name_date "$needed_log_ver_name")\\
 $(format_commits "$new_commits" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
 
-    sed -ie "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|" $change_file
+    sed -i.backup "s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|" $change_file &&
+        rm "${change_file}.backup"
 }
 
 update_links() {
@@ -154,10 +155,12 @@ update_links() {
 
     new_link="[$needed_log_ver]: $repo_url/compare/$latest_log_ver_name...$needed_log_ver_name"
 
-    sed -ie "s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|" "$change_file"
+    sed -i.backup "s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|" "$change_file" &&
+        rm "${change_file}.backup"
 
     reg="s|\(^\[Unreleased\]:.*\)/$latest_log_ver_name\.\.\.HEAD$|\1/$needed_log_ver_name...HEAD|"
-    sed -ie "$reg" "$change_file"
+    sed -i.backup "$reg" "$change_file" &&
+        rm "${change_file}.backup"
 }
 
 get_commits_between() {
