@@ -4,6 +4,7 @@ change_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
 auth_file="$auth_dir/auth"
+change_version="0.11.1"
 nl="
 "
 
@@ -32,6 +33,9 @@ usage() {
     echo "    runs change, then opens $change_file in \$EDITOR"
     echo "    commits and pushes the $change_file to origin"
     echo "    runs change tag -p and then runs change post"
+    echo
+    echo "change --version"
+    echo "    prints which version of the change tool is being used"
 }
 
 get_versions() {
@@ -312,15 +316,16 @@ modify_file() {
     done
 }
 
-[ ! "$1"          ] && { modify_file;            exit; }
-[ "$3"            ] && { echo "too many argument" >&2; exit 1; }
-[ "$1" = "auth"   ] && { auth "$2";              exit; }
-[ "$1" = "post"   ] && { post_release "$2";      exit; }
-[ "$1" = "tag"    ] && { make_and_push_tag "$2"; exit; }
-[ "$2"            ] && { echo "too many argument" >&2; exit 1; }
-[ "$1" = "init"   ] && { init;                   exit; }
-[ "$1" = "all"    ] && { run_all;                exit; }
-[ "$1" = "-h"     ] && { usage;                  exit; }
-[ "$1" = "help"   ] && { usage;                  exit; }
-[ "$1" = "--help" ] && { usage;                  exit; }
-[ "$1"            ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }
+[ ! "$1"             ] && { modify_file;                  exit;   }
+[ "$3"               ] && { echo "too many argument" >&2; exit 1; }
+[ "$1" = "auth"      ] && { auth "$2";                    exit;   }
+[ "$1" = "post"      ] && { post_release "$2";            exit;   }
+[ "$1" = "tag"       ] && { make_and_push_tag "$2";       exit;   }
+[ "$2"               ] && { echo "too many argument" >&2; exit 1; }
+[ "$1" = "init"      ] && { init;                         exit;   }
+[ "$1" = "all"       ] && { run_all;                      exit;   }
+[ "$1" = "-h"        ] && { usage;                        exit;   }
+[ "$1" = "help"      ] && { usage;                        exit;   }
+[ "$1" = "--help"    ] && { usage;                        exit;   }
+[ "$1" = "--version" ] && { echo "$change_version";       exit;   }
+[ "$1" ] && { printf "couldn't recognize argument\n\n" >&2; usage >&2; exit 1; }

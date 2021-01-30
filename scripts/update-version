@@ -1,0 +1,19 @@
+#!/bin/sh
+
+changelog_file="CHANGELOG.md"
+change_script="change"
+
+[ ! -e $changelog_file ] &&
+    { echo "$changelog_file not found in current directory" >&2; exit 1; }
+
+[ ! -e $change_script ] &&
+    { echo "$change_script not found in current directory" >&2; exit 1; }
+
+latest_log_ver=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $changelog_file)
+
+sed -i.backup "s|\(^change_version=\).*|\1\"$latest_log_ver\"|" $change_script &&
+    rm "${change_script}.backup" &&
+    { echo "success - changed version to $latest_log_ver"; exit 0; }
+
+echo "failure - something when wrong"
+exit 1
