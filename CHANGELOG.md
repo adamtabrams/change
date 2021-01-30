@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2021-01-29
+### Added
+- Add `--version` flag for bug reports and troubleshooting.
+
+### Fixed
+- Create temporary backup file when using sed replace.
+
+### Changed
+- Add a license to the project.
+- Create script for updating version.
+
 ## [0.11.1] - 2021-01-28
 ### Fixed
 - Make sed commands work with GNU and BSD versions.
@@ -142,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.11.1...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/adamtabrams/change/compare/0.11.1...0.12.0
 [0.11.1]: https://github.com/adamtabrams/change/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/adamtabrams/change/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/adamtabrams/change/compare/0.9.0...0.10.0
