@@ -8,18 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - ~~SUB-DATE~~
 ### BREAKING CHANGE
-- Remove refactor file.
-- Add fix file.
-- Remove feature file for parser.
-
-### Changed
-- Add test file for md parser.
-- Remove style file.
-- Add perf file.
-- Remove ci file.
-- Add build file.
-- Remove chore file.
-- Add docs file.
+- Add fourth file.
 
 ## [0.1.1] - ~~SUB-DATE~~
 ### Fixed

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. ../../.test-resources.sh
+
+compare_stdout
+compare_stderr
+
+gen_changelog_exp
+compare_changelog

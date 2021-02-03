@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2021-02-03
+### Added
+- Handle `BREAKING CHANGE` token/type in commits.
+- Also parses the commit body for conventional commits.
+
+### Fixed
+- Switch heading for major version commits from `Deprecated` to `BREAKING CHANGE`.
+
+### Changed
+- Refactor code to improve naming, layout, readability, and to split up functions.
+- Add issue templates for more organization and better support.
+
 ## [0.12.0] - 2021-01-29
 ### Added
 - Add `--version` flag for bug reports and troubleshooting.
@@ -153,7 +165,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.12.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.0...HEAD
+[0.13.0]: https://github.com/adamtabrams/change/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/adamtabrams/change/compare/0.11.1...0.12.0
 [0.11.1]: https://github.com/adamtabrams/change/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/adamtabrams/change/compare/0.10.0...0.11.0

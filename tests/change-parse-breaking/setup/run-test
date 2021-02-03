@@ -1,0 +1,36 @@
+#!/bin/sh
+
+git init --quiet
+
+git add run-test
+git commit --quiet -am "ci: add first file"
+git add results
+git commit --quiet -am "docs: add second file"
+git tag 0.1.0
+
+git add exp-stderr
+git commit --quiet -am "fix!: add third file
+
+* fix: add another file
+
+* test: append to path when running tests
+
+- test: add auth file for post tests
+
+* ci: add linting, macOS test, and linux test workflows
+
+* feat: make sed commands more portable
+
+BREAKING CHANGE: add new ci badges to readme"
+git tag 1.0.0
+
+git add exp-stdout
+git commit --quiet -am "test: add fourth file
+
+BREAKING-CHANGE"
+
+git remote add origin https://github.com/adamtabrams/change.git
+
+change >act-stdout 2>act-stderr
+
+rm -rf ./.git
