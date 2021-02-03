@@ -146,16 +146,18 @@ fmt_commits() {
 }
 
 get_commits_between() {
-    latest_git_tag=$1
-    latest_log_tag=$2
-    needed_tag=$3
+    log_format=$1
+    latest_git_tag=$2
+    latest_log_tag=$3
+    needed_tag=$4
 
     highest_tag=$(printf "%s\n%s\n" "$latest_git_tag" "$needed_tag" |
         sort -Vr | head -1)
 
     tag_range="$latest_log_tag.."
     [ "$latest_git_tag" = "$highest_tag" ] && tag_range="$latest_log_tag..$needed_tag"
-    git log --pretty=format:"%s%n%b" "$tag_range"
+
+    git log --pretty=format:"$log_format" "$tag_range"
 }
 
 #### Utils ####
@@ -170,8 +172,10 @@ get_new_tag() {
 }
 
 format_commits() {
-    list="$1"
-    list=$(echo "$list" | filter_conv_commits)
+    commits_head=$1
+    commits_body=$(echo "$2" | filter_conv_commits)
+
+    list=$(printf "%s\n%s" "$commits_head" "$commits_body")
 
     dep=$(echo "$list" | filter_major_commits)
     list=$(echo "$list" | filter_major_commits -v)
@@ -210,10 +214,12 @@ update_diffs() {
 
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
     needed_ver=$(rm_tag_prefix "$needed_tag")
-    new_commits=$(get_commits_between "$latest_git_tag" "$latest_log_tag" "$needed_tag")
+
+    new_commits_head=$(get_commits_between "%s" "$latest_git_tag" "$latest_log_tag" "$needed_tag")
+    new_commits_body=$(get_commits_between "%b" "$latest_git_tag" "$latest_log_tag" "$needed_tag")
 
     new_section="## [$needed_ver] - $(get_tag_date "$needed_tag")\\
-$(format_commits "$new_commits" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
+$(format_commits "$new_commits_head" "$new_commits_body" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
 
     regex="s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|"
     sed -i.backup "$regex" $change_file && rm "${change_file}.backup"
