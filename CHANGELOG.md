@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.0] - 2021-02-03
 ### Added
-- Handle `BREAKING CHANGE` token/type in commits.
+- Handle "BREAKING CHANGE" token/type in commits.
 - Also parses the commit body for conventional commits.
 
 ### Fixed
-- Switch heading for major version commits from `Deprecated` to `BREAKING CHANGE`.
+- Switch heading for major version commits from "Deprecated" to "BREAKING CHANGE".
 
 ### Changed
 - Refactor code to improve naming, layout, readability, and to split up functions.
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `--version` flag for bug reports and troubleshooting.
 
 ### Fixed
-- Create temporary backup file when using sed replace.
+- Create temporary backup file when using `sed` replace.
 
 ### Changed
 - Add a license to the project.
@@ -35,10 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1] - 2021-01-28
 ### Fixed
-- Make sed commands work with GNU and BSD versions.
+- Make `sed` commands work with GNU and BSD versions.
 
 ### Changed
-- Add CI workflows linting and running tests in linux and macOS.
+- Add CI workflows linting and running tests in Linux and macOS.
 - Add new CI badges to README.
 - Add sample auth files for post tests.
 - Append change directory to PATH when running tests.
@@ -58,19 +58,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0] - 2021-01-21
 ### Added
-- Add --dry-run flag to `change post` to see the release without making it.
-- Add -p flag to `change tag` for optionally pushing new tag.
+- Add `--dry-run` flag to `change post` to see the release without making it.
+- Add `-p` flag to `change tag` for optionally pushing new tag.
 
 ### Fixed
 - Improve behavior for `change all`.
 - Improve commit parsing and git repo detection.
 
 ### Changed
-- Update --help and README with new flags.
+- Update `--help` and README with new flags.
 - Update test script and improve readability.
 - Add new tests and improve structure.
 - Add tests for different version formats.
-- Add tests for tag, post, and other args.
+- Add tests for tag, post, and other arguments.
 - Add more tests.
 
 ## [0.9.0] - 2021-01-19
@@ -79,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fix version prefix handling (example v0.1.0)
-- Improved some of the error messages for init.
+- Improved some of the error messages for `change init`.
 - Give tips for adding the script to PATH in the README.
 
 ## [0.8.0] - 2021-01-11
@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.1] - 2021-01-07
 ### Fixed
-- Use `--decode` arg with base64 to get proper behavior with BSD and GNU versions.
+- Use `--decode` argument with `base64` to get proper behavior with BSD and GNU versions.
 
 ### Changed
 - Clarified `change all` command.
@@ -106,12 +106,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed editor prompt when amending with all command.
 
 ### Changed
-- Update workflow section in readme.
+- Update workflow section in README.
 
 ## [0.6.0] - 2020-06-06
 ### Added
 - Created a change all command for improved workflow.
-- Explained the change all in the readme.
+- Explained the change all in the README.
 
 ### Fixed
 - Corrected typo in regex for sorting commits.
@@ -119,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.2] - 2020-05-29
 ### Fixed
 - Version sorting needed to be reversed.
-- Escape more character for use in sed and curl.
+- Escape more character for use in `sed` and `curl`.
 
 ## [0.5.1] - 2020-05-29
 ### Fixed
@@ -128,7 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow tokenized breaking change in footer.
 
 ### Changed
-- Improve usage and readme.
+- Improve usage and README.
 
 ## [0.5.0] - 2020-05-29
 ### Added
@@ -139,9 +139,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.1] - 2020-05-29
 ### Fixed
-- Removed incorrect curl options.
-- Improve curl options and error handling.
-- Improve curl options and error handling.
+- Removed incorrect `curl` options.
+- Improve `curl` options and error handling.
+- Improve `curl` options and error handling.
 
 ## [0.4.0] - 2020-05-28
 ### Added
