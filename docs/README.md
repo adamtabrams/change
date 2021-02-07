@@ -1,5 +1,5 @@
 ![lint](https://github.com/adamtabrams/change/workflows/lint/badge.svg)
-![linux](https://github.com/adamtabrams/change/workflows/linux/badge.svg)
+![Linux](https://github.com/adamtabrams/change/workflows/linux/badge.svg)
 ![macOS](https://github.com/adamtabrams/change/workflows/macOS/badge.svg)
 
 
@@ -11,6 +11,10 @@ and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 to help you generate and update a changelog template.
 This tool cannot not fully write a [good changelog](https://keepachangelog.com/en/1.0.0/#bad-practices) for you.
 But it can do some of the work!
+
+
+# Generate a changelog
+![generate-changelog](./generate-changelog.gif)
 
 
 # Usage
@@ -41,7 +45,7 @@ Then it tags the latest commit with that version.
 
 #### Post a release to GitHub with `change post`
 * This posts the section of the latest version in the changelog as a GitHub release.
-* Optionally, you can provide --dry-run see the url, version, and message body without
+* Optionally, you can provide --dry-run see the URL, version, and message body without
 creating the release: `change post --dry-run`
 
 #### Combine multiple commands with `change all`
