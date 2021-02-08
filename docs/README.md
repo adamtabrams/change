@@ -1,3 +1,12 @@
+
+```
+  ______________________________
+ / __// // / _ | / |/ / ___/ __/
+/ /__/ _  / __ |/    / (_ / _/
+\___/_//_/_/ |_/_/|_/\___/___/
+```
+
+
 ![lint](https://github.com/adamtabrams/change/workflows/lint/badge.svg)
 ![Linux](https://github.com/adamtabrams/change/workflows/linux/badge.svg)
 ![macOS](https://github.com/adamtabrams/change/workflows/macOS/badge.svg)
@@ -5,12 +14,13 @@
 
 # About
 
-The goal of `change` is to take the grunt work out of formatting changelogs. It combines the ideas from
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+The goal of `change` is to take the grunt work out of creating and updating changelogs.
+It combines the ideas from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 to help you generate and update a changelog template.
-This tool cannot not fully write a [good changelog](https://keepachangelog.com/en/1.0.0/#bad-practices) for you.
-But it can do some of the work!
+This tool can't do **all** the work of writing a
+[great changelog](https://keepachangelog.com/en/1.0.0/#bad-practices) for you.
+But `change` can do a lot of it!
 
 
 # Generate a changelog
