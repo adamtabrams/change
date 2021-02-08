@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.2] - 2021-02-08
+### Fixed
+- Make newlines in commit bodies from `git log` follow the Unix standard.
+
+### Changed
+- Reword parts of README and add example gifs.
+- Fix formatting and style in README and add docs directory.
+
 ## [0.13.1] - 2021-02-03
 ### Fixed
 - Restore behavior for parsing non-conventional commit subjects.
@@ -169,7 +177,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.1...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.2...HEAD
+[0.13.2]: https://github.com/adamtabrams/change/compare/0.13.1...0.13.2
 [0.13.1]: https://github.com/adamtabrams/change/compare/0.13.0...0.13.1
 [0.13.0]: https://github.com/adamtabrams/change/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/adamtabrams/change/compare/0.11.1...0.12.0
