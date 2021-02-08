@@ -157,7 +157,7 @@ get_commits_between() {
     tag_range="$latest_log_tag.."
     [ "$latest_git_tag" = "$highest_tag" ] && tag_range="$latest_log_tag..$needed_tag"
 
-    git log --pretty=format:"$log_format" "$tag_range"
+    git log --pretty=format:"$log_format" "$tag_range" | sed "s|$||"
 }
 
 #### Utils ####
