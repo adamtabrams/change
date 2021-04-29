@@ -4,7 +4,7 @@ change_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
 auth_file="$auth_dir/auth"
-change_version="0.13.3"
+change_version="0.13.4"
 nl="
 "
 
@@ -49,6 +49,11 @@ get_tag_date() {
     date=$(git log -1 --pretty=format:"%ci" "$1" 2>/dev/null | cut -d " " -f 1)
     [ "$date" ] && { echo "$date"; return; }
     date +%F
+}
+
+get_git_url() {
+    git config --get remote.origin.url |
+        sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
 }
 
 rm_tag_prefix() {
@@ -231,7 +236,7 @@ update_links() {
 
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
     needed_ver=$(rm_tag_prefix "$needed_tag")
-    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
+    repo_url=$(get_git_url)
 
     new_link="[$needed_ver]: $repo_url/compare/$latest_log_tag...$needed_tag"
 
@@ -294,9 +299,7 @@ Post_release() {
     auth_token=$(base64 --decode < "$auth_file")
     latest_log_tag=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
-
-    repo_url=$(git config --get remote.origin.url |
-        sed -e "s|\(.*\)\.git|\1|" -e "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
+    repo_url=$(get_git_url | sed "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $change_file | sed "\$d")
     link=$(grep "^\[$latest_log_ver\]: .*" $change_file)
@@ -324,7 +327,7 @@ Create_changelog() {
     first_commits=$(git log --pretty=format:"%s" "$first_tag")
     [ ! "$first_commits" ] && { echo "couldn't get first commits" >&2; return 2; }
 
-    repo_url=$(git config --get remote.origin.url | sed "s|\(.*\)\.git|\1|")
+    repo_url=$(get_git_url)
     [ ! "$repo_url" ] && { echo "remote origin url isn't set for this repo" >&2; return 1; }
 
     echo "# Changelog
