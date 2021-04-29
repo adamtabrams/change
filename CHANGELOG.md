@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.4] - 2021-04-28
+### Fixed
+- Correct handling of urls for repos cloned using ssh.
+
+### Changed
+- Use smaller gif files.
+
 ## [0.13.3] - 2021-02-21
 ### Fixed
 - Correct output for `change --version`.
@@ -185,7 +192,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.3...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.4...HEAD
+[0.13.4]: https://github.com/adamtabrams/change/compare/0.13.3...0.13.4
 [0.13.3]: https://github.com/adamtabrams/change/compare/0.13.2...0.13.3
 [0.13.2]: https://github.com/adamtabrams/change/compare/0.13.1...0.13.2
 [0.13.1]: https://github.com/adamtabrams/change/compare/0.13.0...0.13.1
