@@ -13,7 +13,7 @@ git commit --quiet -am "feat: add third file"
 
 git remote add origin https://github.com/adamtabrams/change.git
 
-change tag -a >act-stdout 2>act-stderr
+change tag --bump ./bump-script.sh >act-stdout 2>act-stderr
 
 git tag --list >act-tags
 
