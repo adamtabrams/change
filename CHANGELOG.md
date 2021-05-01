@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2021-04-30
+### Added
+- Create a new flag for running a version bump script.
+
+### Fixed
+- Improve argument handling.
+
+### Changed
+- Improve some existing arguments and flags.
+- Update tests.
+
 ## [0.13.4] - 2021-04-28
 ### Fixed
 - Correct handling of urls for repos cloned using ssh.
@@ -192,7 +203,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.13.4...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.0...HEAD
+[0.14.0]: https://github.com/adamtabrams/change/compare/0.13.4...0.14.0
 [0.13.4]: https://github.com/adamtabrams/change/compare/0.13.3...0.13.4
 [0.13.3]: https://github.com/adamtabrams/change/compare/0.13.2...0.13.3
 [0.13.2]: https://github.com/adamtabrams/change/compare/0.13.1...0.13.2
