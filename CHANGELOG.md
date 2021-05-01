@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2021-04-30
+### Fixed
+- Correct handling of help and version flags or commands.
+
 ## [0.14.0] - 2021-04-30
 ### Added
 - Create a new flag for running a version bump script.
@@ -203,7 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.0...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.1...HEAD
+[0.14.1]: https://github.com/adamtabrams/change/compare/0.14.0...0.14.1
 [0.14.0]: https://github.com/adamtabrams/change/compare/0.13.4...0.14.0
 [0.13.4]: https://github.com/adamtabrams/change/compare/0.13.3...0.13.4
 [0.13.3]: https://github.com/adamtabrams/change/compare/0.13.2...0.13.3
