@@ -39,39 +39,43 @@ But `change` can do a lot of it!
 So it's better to let `change` generate one. You can transfer existing messages afterward.
 
 #### Now populate the rest of it with `change`
-* `change` can add multiple versions to your changelog, but those version tags need to already exist.
-Otherwise, it assumes everything since the last version tag is for the next version.
+* `change` can add multiple versions to your changelog, but those version tags should already exist.
+Otherwise, it will assume everything since the previous version tag is part of the newest version.
 * `change` figures out what your next version should be based on your commits and will add it to the changelog.
+* Optionally, adding `--bump PATH` can pass the newest version as an argument to a script.
+You can customize that script to update version info anywhere in your repo.
 
 #### Fill in the details
 * You should validate what was generated and add details where ever more are needed.
 
 #### Tag the latest commit with `change tag`
 * This looks at the latest version recorded in the changelog and tags the latest commit with that version.
-* Optionally, you can provide `-p` to push the new version: `change tag -p`
+* Optionally, you can add `-p` to automatically push the new version.
 
 #### Save a token with `change auth`
-* This saves a personal access token that's used for posting releases.
-* Here are [instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token) for making one.
-* Optionally, you can provide the token non-interactively: `change auth [TOKEN]`
+* This is only needed if you want to use `change post`.
+* A personal access token is saved for use when posting a release.
+* Here are [instructions](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token) for creating a Github token.
+* Optionally, you can use `--token TOKEN` to provide the token non-interactively.
 
 #### Post a release to GitHub with `change post`
-* This will post the latest version's section from the changelog as a GitHub release.
+* This will post the section from the latest version in the changelog as a GitHub release.
 * Optionally, you can provide `--dry-run` to see the URL, version, and message body without
 actually creating the release: `change post --dry-run`
 
 #### Combine multiple commands with `change all`
 * First it runs the `change` command.
 * Then it opens your changelog with $EDITOR (or vi if that isn't set).
-* As long as you modify the changelog in some way, it commits and pushes it to origin.
+* As long as you modify the changelog in some way, it commits and pushes.
 * Lastly, it runs `change tag -p` and `change post`.
 * I use this command most often.
+* Optionally, you can use the `--bump` flag.
 
 
 ## Workflow
 
 This is the general workflow I use with this tool:
-* make changes to your project
+* make changes to the project
 * record those changes in commits
     * smaller, more focused commits will help when generating the changelog
 * run `change all`
@@ -93,4 +97,4 @@ If you use `change` often, add it to your path. Here are some options for how:
     * You would probably put this in a file like: .bashrc, .profile, .zprofile, etc
 * Copy the script to your current path:
     * `cp /path/to/change/script ~/.local/bin/`
-    * Drawback: the `change` executable will remain at its version when the command was used.
+    * Drawback: the `change` executable will remain at its version when this command was used.

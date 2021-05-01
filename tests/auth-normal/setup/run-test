@@ -3,4 +3,4 @@
 cur_dir=$(pwd)
 export XDG_DATA_HOME=$cur_dir
 
-change auth 1234 >act-stdout 2>act-stderr
+change auth --token=1234 >act-stdout 2>act-stderr

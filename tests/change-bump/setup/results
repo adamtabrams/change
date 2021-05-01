@@ -2,9 +2,8 @@
 
 . ../../.test-resources.sh
 
-change --help >> exp-stderr
-
 compare_stdout
 compare_stderr
 
-no_changelog
+gen_changelog_exp
+compare_changelog

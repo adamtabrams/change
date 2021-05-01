@@ -1,8 +1,0 @@
-#!/bin/sh
-
-. ../../.test-resources.sh
-
-compare_stdout
-compare_stderr
-
-no_changelog
