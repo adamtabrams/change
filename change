@@ -11,16 +11,16 @@ nl="
 Usage() {
     echo "usage: change [COMMAND [ARGS]]"
     echo
-    echo "change"
+    echo "change [--bump PATH]"
     echo "    updates an existing $change_file"
+    echo "    optional: --bump passes the newest version as an arg to a script at PATH"
     echo
     echo "change init"
     echo "    creates a $change_file with the first version"
     echo
-    echo "change tag [-p] [--bump PATH]"
+    echo "change tag [-p]"
     echo "    tags the latest local commit with the lastest $change_file version"
     echo "    optional: -p also pushes that tag to origin"
-    echo "    optional: --bump passes the latest version as an arg to a script at PATH"
     echo
     echo "change auth [--token TOKEN]"
     echo "    prompts you for a personal access token for posting releases"
@@ -34,7 +34,7 @@ Usage() {
     echo "    runs change, then opens $change_file in \$EDITOR"
     echo "    commits and pushes the $change_file to origin"
     echo "    runs change tag -p and then runs change post"
-    echo "    optional: --bump passes the new version as an arg to an executable at PATH"
+    echo "    optional: --bump passes the newest version as an arg to a script at PATH"
     echo
     echo "change version"
     echo "    prints which version of the change tool is being used"
@@ -56,6 +56,10 @@ get_tag_date() {
 get_git_url() {
     git config --get remote.origin.url |
         sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
+}
+
+get_latest_log_tag() {
+    sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file
 }
 
 rm_tag_prefix() {
@@ -258,22 +262,28 @@ startup_checks() {
     return 0
 }
 
+bump_version() {
+    [ ! "$bump_script" ] && return 0
+    latest_log_tag=$(get_latest_log_tag)
+
+    [ -x "$bump_script" ] &&
+        { echo "executing $bump_script $latest_log_tag"; "$bump_script" "$latest_log_tag"; return; }
+
+    [ ! -x "$bump_script" ] && [ -f "$bump_script" ] &&
+        { echo "executing sh $bump_script $latest_log_tag"; sh "$bump_script" "$latest_log_tag"; return; }
+
+    [ ! -f "$bump_script" ] && echo "script not found: $bump_script" >&2
+    return 1
+}
+
 #### Public ####
 
 Make_and_push_tag() {
     ! startup_checks && return 1
-    latest_log_tag=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+    latest_log_tag=$(get_latest_log_tag)
 
     git tag "$latest_log_tag" || return 1
     echo "tagged latest commit as $latest_log_tag"
-
-    [ -x "$bump_script" ] &&
-        echo "executing $bump_script $latest_log_tag" &&
-        "$bump_script" "$latest_log_tag"
-
-    [ ! -x "$bump_script" ] && [ -f "$bump_script" ] &&
-        echo "executing sh $bump_script $latest_log_tag" &&
-        sh "$bump_script" "$latest_log_tag"
 
     [ "$push_tag" = "true" ] &&
         git push --quiet origin "$latest_log_tag" &&
@@ -297,7 +307,7 @@ Post_release() {
     [ ! -e "$auth_file" ] && { echo "you need to save a token with the auth" >&2; return 1; }
 
     auth_token=$(base64 --decode < "$auth_file")
-    latest_log_tag=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+    latest_log_tag=$(get_latest_log_tag)
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
     repo_url=$(get_git_url | sed "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
 
@@ -353,7 +363,7 @@ Update_changelog() {
     ! startup_checks && return 1
 
     latest_git_tag=$(get_git_tags -v | head -1)
-    latest_log_tag=$(sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file)
+    latest_log_tag=$(get_latest_log_tag)
     all_needed_tags=$(get_needed_tags "$latest_git_tag" "$latest_log_tag")
 
     [ ! "$all_needed_tags" ] && { echo "no new versions to add"; return 1; }
@@ -366,6 +376,8 @@ Update_changelog() {
 
         latest_log_tag="$needed_tag"
     done
+
+    [ ! "$command" ] && bump_version
 }
 
 Run_all() {
@@ -378,6 +390,7 @@ Run_all() {
         echo "cancelling because no manual edits were made to $change_file" >&2 &&
         echo "$save_file" > $change_file &&
         return 1
+    bump_version
     push_tag="true"
     git add $change_file &&
         git commit --quiet -m "docs: update changelog" &&
@@ -388,7 +401,8 @@ Run_all() {
 #### Args ####
 
 command=$1
-shift
+[ "$(expr "$command" : "-.*")" != 0 ] && command=""
+[ "$command" ] && shift
 
 while [ $# != 0 ]; do
     case $1 in

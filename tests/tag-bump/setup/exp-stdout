@@ -1,5 +1,0 @@
-tagged latest commit as 0.2.0
-executing ./bump-script.sh 0.2.0
-version 0.2.0 bumped
-to push the latest tag use: git push origin 0.2.0
-to push all local tags use: git push origin --tags

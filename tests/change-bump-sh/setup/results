@@ -5,6 +5,5 @@
 compare_stdout
 compare_stderr
 
-compare_tags
-
+gen_changelog_exp
 compare_changelog

@@ -6,10 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2021-01-19
-### Added
-- Add third file.
-
 ## [0.1.0] - 2021-01-19
 ### Added
 - Add first file.
@@ -17,6 +13,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add second file.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.2.0...HEAD
-[0.2.0]: https://github.com/adamtabrams/change/compare/0.1.0...0.2.0
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.1.0...HEAD
 [0.1.0]: https://github.com/adamtabrams/change/releases/tag/0.1.0
