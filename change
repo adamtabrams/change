@@ -377,7 +377,9 @@ Update_changelog() {
         latest_log_tag="$needed_tag"
     done
 
-    [ ! "$command" ] && bump_version
+    [ ! "$command" ] && { bump_version; return; }
+
+    return 0
 }
 
 Run_all() {
