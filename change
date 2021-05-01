@@ -414,6 +414,8 @@ while [ $# != 0 ]; do
         "--bump="* ) bump_script="${1#*=}";;
         "--token" ) token="$2"; shift;;
         "--token="* ) token="${1#*=}";;
+        "--help" | "-h" ) Usage; exit;;
+        "--version" | "-v" ) echo "$change_version"; exit;;
         * ) echo "invalid argument: $1" >&2; exit 1;;
     esac
 
@@ -428,8 +430,8 @@ case $command in
     "tag"  ) Make_and_push_tag;;
     "post" ) Post_release;;
     "all"  ) Run_all;;
-    "help" | "--help" | "-h" ) Usage;;
-    "version" | "--version" | "-v" ) echo "$change_version";;
+    "help" ) Usage;;
+    "version" ) echo "$change_version";;
     * ) echo "invalid command: $command" >&2; exit 1;;
 esac
 
