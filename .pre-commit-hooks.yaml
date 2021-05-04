@@ -1,0 +1,10 @@
+- id: change
+  name: change
+  description: Automated changelog updater.
+  language: script
+  entry: change
+  stages: push
+  always_run: true
+  verbose: true
+  pass_filenames: false
+  require_serial: true
