@@ -3,7 +3,7 @@
   description: Automated changelog updater.
   language: script
   entry: change
-  stages: push
+  stages: [push]
   always_run: true
   verbose: true
   pass_filenames: false
