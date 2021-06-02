@@ -93,10 +93,10 @@ filter_major_commits() {
     args="-e" # send arg "-v" for inverse and "-q" for quiet
     [ "$1" ] && args="${1}e"
 
-    grep "$args" "^[A-z]*!: " \
-        -e "^[A-z]*(.*)!: " \
-        -e "^[*-] *[A-z]*!: " \
-        -e "^[*-] *[A-z]*(.*)!: " \
+    grep "$args" "^[A-Za-z]*!: " \
+        -e "^[A-Za-z]*(.*)!: " \
+        -e "^[*-] *[A-Za-z]*!: " \
+        -e "^[*-] *[A-Za-z]*(.*)!: " \
         -e "^BREAKING[ -]CHANGE: " \
         -e "^[*-] *BREAKING[ -]CHANGE: " \
         -e "^BREAKING[ -]CHANGE"
@@ -123,23 +123,23 @@ filter_patch_commits() {
 }
 
 filter_conv_commits() {
-    grep -e "^[A-z]*: " -e "^[A-z]*(.*): " \
-        -e "^[*-] *[A-z]*: " -e "^[*-] *[A-z]*(.*): " \
-        -e "^[A-z]*!: " -e "^[A-z]*(.*)!: " \
-        -e "^[*-] *[A-z]*!: " -e "^[*-] *[A-z]*(.*)!: " \
+    grep -e "^[A-Za-z]*: " -e "^[A-Za-z]*(.*): " \
+        -e "^[*-] *[A-Za-z]*: " -e "^[*-] *[A-Za-z]*(.*): " \
+        -e "^[A-Za-z]*!: " -e "^[A-Za-z]*(.*)!: " \
+        -e "^[*-] *[A-Za-z]*!: " -e "^[*-] *[A-Za-z]*(.*)!: " \
         -e "^BREAKING[ -]CHANGE: " -e "^[*-] *BREAKING[ -]CHANGE: " \
         -e "^BREAKING[ -]CHANGE"
 }
 
 fmt_conv_type() {
-    sed -e "s|^[A-z]*: \(.*$\)|\1|g" \
-        -e "s|^[A-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
-        -e "s|^[*-] *[A-z]*: \(.*$\)|\1|g" \
-        -e "s|^[*-] *[A-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
-        -e "s|^[A-z]*!: \(.*$\)|\1|g" \
-        -e "s|^[A-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
-        -e "s|^[*-] *[A-z]*!: \(.*$\)|\1|g" \
-        -e "s|^[*-] *[A-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
+    sed -e "s|^[A-Za-z]*: \(.*$\)|\1|g" \
+        -e "s|^[A-Za-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
+        -e "s|^[*-] *[A-Za-z]*: \(.*$\)|\1|g" \
+        -e "s|^[*-] *[A-Za-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
+        -e "s|^[A-Za-z]*!: \(.*$\)|\1|g" \
+        -e "s|^[A-Za-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
+        -e "s|^[*-] *[A-Za-z]*!: \(.*$\)|\1|g" \
+        -e "s|^[*-] *[A-Za-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
         -e "s|^BREAKING[ -]CHANGE: \(.*$\)|\1|g" \
         -e "s|^[*-] *BREAKING[ -]CHANGE: \(.*$\)|\1|g" \
         -e "s|^BREAKING[ -]CHANGE|a breaking change|g"
