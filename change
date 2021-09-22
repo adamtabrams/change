@@ -152,7 +152,7 @@ fmt_commits() {
     for commit in $all_commits; do
         first_char=$(echo "$commit" | cut -c 1 | tr "[:lower:]" "[:upper:]")
 
-        echo "$commit" | sed -e "s|^.\(.*$\)|- $first_char\1.|"
+        echo "$commit" | sed -e "s|^.\(.*$\)|- $first_char\1|" -e 's|\(.*[^.!?]\)$|\1.|'
     done
 }
 

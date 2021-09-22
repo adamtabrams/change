@@ -19,7 +19,7 @@ git rm --quiet --cached exp-stderr
 git commit --quiet -am "chore: single backslash \ escaped backslash \\ "
 
 git add exp-stderr
-git commit --quiet -am "fix: four backslashes \\\\ exclamation !"
+git commit --quiet -am "fix: exclamation ! four backslashes \\\\"
 git rm --quiet --cached exp-stderr
 git commit --quiet -am 'chore: colon exclamation :! "quote pair"'
 

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (paren pair) {curly pair} [square pair].
 - Website https://github.com/adamtabrams.
 - Asterisk * escaped asterisk \*.
-- Four backslashes \ exclamation !.
+- Exclamation ! four backslashes \.
 - 'apostrophe pair' `escaped tick pair`.
 - Tilda ~ escaped tick ` ampersand &.
 
