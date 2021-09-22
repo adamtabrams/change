@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.3] - 2021-09-22
+### Fixed
+- Only add period to the end of commit messages when punctuation is not already present.
+
 ## [0.14.2] - 2021-06-02
 ### Fixed
 - Support more locales with grep range regex.
@@ -214,7 +218,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.2...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.3...HEAD
+[0.14.3]: https://github.com/adamtabrams/change/compare/0.14.2...0.14.3
 [0.14.2]: https://github.com/adamtabrams/change/compare/0.14.1...0.14.2
 [0.14.1]: https://github.com/adamtabrams/change/compare/0.14.0...0.14.1
 [0.14.0]: https://github.com/adamtabrams/change/compare/0.13.4...0.14.0
