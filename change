@@ -209,8 +209,8 @@ get_needed_tags() {
 
     tags=$(get_git_tags -v)
 
-    ! echo "$tags" | grep -q "$latest_log_tag" && return 0
-    echo "$tags" | sed -n "/$latest_log_tag/!p;//q" | sed '1!G;h;$!d'
+    ! echo "$tags" | grep -q "^${latest_log_tag}$" && return 0
+    echo "$tags" | sed -n "/^${latest_log_tag}$/!p;//q" | sed '1!G;h;$!d'
 
     latest_changes=$(git log --pretty=format:"%B" "$latest_git_tag..")
     [ ! "$latest_changes" ] && return
