@@ -1,6 +1,6 @@
 #!/bin/sh
 
-all_tests=$*
+all_tests=$(echo "$*" | tr ' ' '\n')
 num_fails=0
 num_tests=0
 IFS="
@@ -12,6 +12,7 @@ export PATH="$cur_dir:${PATH};"
 [ $# = 0 ] && all_tests="./tests/*"
 [ $# != 1 ] && echo "Running tests"
 
+# for test in $all_tests; do
 for test in $all_tests; do
     [ -f "$test" ] && continue
     num_tests=$((num_tests + 1))
