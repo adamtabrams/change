@@ -6,7 +6,6 @@
 ```
 
 
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-flatgreen?logo=pre-commit&logoColor=white&labelColor=364146)](https://github.com/pre-commit/pre-commit)
 ![lint](https://github.com/adamtabrams/change/workflows/lint/badge.svg)
 ![Linux](https://github.com/adamtabrams/change/workflows/linux/badge.svg)
 ![macOS](https://github.com/adamtabrams/change/workflows/macOS/badge.svg)
