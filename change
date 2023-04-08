@@ -20,7 +20,7 @@ Usage() {
     echo
     echo "change tag [-p]"
     echo "    tags the latest local commit with the lastest $change_file version"
-    echo "    optional: -p also pushes that tag to origin"
+    echo "    optional: -p also pushes that tag"
     echo
     echo "change auth [--token TOKEN]"
     echo "    prompts you for a personal access token for posting releases"
@@ -32,7 +32,7 @@ Usage() {
     echo
     echo "change all [--bump PATH]"
     echo "    runs change, then opens $change_file in \$EDITOR"
-    echo "    commits and pushes the $change_file to origin"
+    echo "    commits and pushes the $change_file"
     echo "    runs change tag -p and then runs change post"
     echo "    optional: --bump passes the newest version as an arg to a script at PATH"
     echo
@@ -53,10 +53,18 @@ get_tag_date() {
     date +%F
 }
 
-get_git_url() {
-    git config --get remote.origin.url |
-        sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
+remote_url() {
+    git ls-remote --get-url 2>/dev/null
 }
+
+remote_url_clean() {
+    remote_url | sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
+}
+
+# get_git_url() {
+#     git ls-remote --get-url 2>/dev/null |
+#         sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
+# }
 
 get_latest_log_tag() {
     sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $change_file
@@ -242,7 +250,7 @@ update_links() {
 
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
     needed_ver=$(rm_tag_prefix "$needed_tag")
-    repo_url=$(get_git_url)
+    repo_url=$(remote_url_clean)
 
     new_link="[$needed_ver]: $repo_url/compare/$latest_log_tag...$needed_tag"
 
@@ -256,8 +264,7 @@ update_links() {
 startup_checks() {
     [ ! -e "$change_file" ] && { echo "couldn't find $change_file" >&2; return 1; }
     [ ! -d .git ] && { echo "the current directory doesn't contain .git" >&2; return 1; }
-    ! git config --get remote.origin.url >/dev/null &&
-        { echo "remote origin url isn't set for this repo" >&2; return 1; }
+    ! remote_url >/dev/null && { echo "cannot find remote url for this repo" >&2; return 1; }
 
     return 0
 }
@@ -281,17 +288,18 @@ bump_version() {
 Make_and_push_tag() {
     ! startup_checks && return 1
     latest_log_tag=$(get_latest_log_tag)
+    repo_url=$(remote_url)
 
     git tag "$latest_log_tag" || return 1
     echo "tagged latest commit as $latest_log_tag"
 
     [ "$push_tag" = "true" ] &&
-        git push --quiet origin "$latest_log_tag" &&
-        echo "pushed $latest_log_tag to origin" &&
+        git push --quiet "$repo_url" "$latest_log_tag" &&
+        echo "pushed $latest_log_tag to $repo_url" &&
         return 0
 
-    echo "to push the latest tag use: git push origin $latest_log_tag"
-    echo "to push all local tags use: git push origin --tags"
+    printf "to push the latest tag use:\n\tgit push %s %s\n" "$repo_url" "$latest_log_tag"
+    printf "to push all local tags use:\n\tgit push %s --tags\n" "$repo_url"
 }
 
 Save_auth() {
@@ -309,7 +317,7 @@ Post_release() {
     auth_token=$(base64 --decode < "$auth_file")
     latest_log_tag=$(get_latest_log_tag)
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
-    repo_url=$(get_git_url | sed "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
+    repo_url=$(remote_url_clean | sed "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $change_file | sed "\$d")
     link=$(grep "^\[$latest_log_ver\]: .*" $change_file)
@@ -337,8 +345,8 @@ Create_changelog() {
     first_commits=$(git log --pretty=format:"%s" "$first_tag")
     [ ! "$first_commits" ] && { echo "couldn't get first commits" >&2; return 2; }
 
-    repo_url=$(get_git_url)
-    [ ! "$repo_url" ] && { echo "remote origin url isn't set for this repo" >&2; return 1; }
+    repo_url=$(remote_url_clean)
+    [ ! "$repo_url" ] && { echo "remote url isn't set for this repo" >&2; return 1; }
 
     echo "# Changelog
 All notable changes to this project will be documented in this file.
@@ -396,7 +404,7 @@ Run_all() {
     push_tag="true"
     git add $change_file &&
         git commit --quiet -m "docs: update changelog" &&
-        git push --quiet origin &&
+        git push --quiet &&
         Make_and_push_tag && Post_release
 }
 
