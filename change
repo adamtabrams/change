@@ -100,8 +100,9 @@ remote_url() {
 }
 
 remote_url_clean() {
-    remote_url | sed -E -e 's,\.git$,,' \
-        -e 's,https://.*@(.*),https://\1,' \
+    remote_url | sed -E \
+        -e 's,\.git$,,' \
+        -e 's,^https://.*@(.*),https://\1,' \
         -e 's,^git@(.*):(.*),https://\1/\2,'
 
 }
@@ -164,6 +165,7 @@ fmt_conv_type() {
         -e "s|^BREAKING[ -]CHANGE|a breaking change|g"
 }
 
+# TODO: remove var from sed expression
 fmt_commits() {
     while read -r commit; do
         first_char=$(echo "$commit" | cut -c1 | tr '[:lower:]' '[:upper:]')
@@ -220,13 +222,14 @@ format_commits() {
     [ "$list" ] && echo "### Changed" && echo "$list" | fmt_conv_type | fmt_commits
 }
 
+# TODO: remove var from sed expression
 needed_tags() {
     latest_git_tag=$1
     latest_log_tag=$2
 
     tags=$(semver_git_tags)
 
-    ! echo "$tags" | grep -q "^${latest_log_tag}$" && return
+    echo "$tags" | grep -q "^${latest_log_tag}$" || return 0
     echo "$tags" | sed -n "/^${latest_log_tag}$/!p;//q" | sed '1!G;h;$!d'
 
     latest_changes=$(git log --pretty=format:"%B" "$latest_git_tag..")
@@ -235,6 +238,7 @@ needed_tags() {
     new_tag "$latest_changes" "$latest_git_tag" | rm_tag_suffix
 }
 
+# TODO: remove var from sed expression
 update_diffs() {
     latest_git_tag=$1
     latest_log_tag=$2
@@ -252,9 +256,10 @@ $(format_commits "$new_commits_head" "$new_commits_body" | sed -e "s|\([&\\]\)|\
     nl="
 "
     regex="s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|"
-    sed -i.backup "$regex" $log_file && rm "${log_file}.backup"
+    sed -i.backup "$regex" $log_file && rm "$log_file.backup"
 }
 
+# TODO: remove var from sed expression
 update_links() {
     latest_log_tag=$1
     needed_tag=$2
@@ -268,18 +273,17 @@ update_links() {
     nl="
 "
     regex="s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|"
-    sed -i.backup "$regex" "$log_file" && rm "${log_file}.backup"
+    sed -i.backup "$regex" $log_file && rm "$log_file.backup"
 
     regex="s|\(^\[Unreleased\]:.*\)/$latest_log_tag\.\.\.HEAD$|\1/$needed_tag...HEAD|"
-    sed -i.backup "$regex" "$log_file" && rm "${log_file}.backup"
+    sed -i.backup "$regex" $log_file && rm "$log_file.backup"
 }
 
 startup_checks() {
-    [ ! -e "$log_file" ] && echo "couldn't find $log_file" >&2 && return 1
+    [ ! -f $log_file ] && echo "couldn't find $log_file" >&2 && return 1
     [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
-    ! remote_url >/dev/null && echo "cannot find remote url for this repo" >&2 && return 1
-
-    return 0
+    remote_url >/dev/null && return
+    echo "cannot find remote url for this repo" >&2 && return 1
 }
 
 bump_version() {
@@ -299,7 +303,7 @@ bump_version() {
 #### Public ####
 
 tag_and_push() {
-    ! startup_checks && return 1
+    startup_checks || return 1
     latest_log_tag=$(latest_log_tag)
     repo_url=$(remote_url)
 
@@ -324,12 +328,13 @@ save_auth() {
 }
 
 post_release() {
-    ! startup_checks && return 1
+    startup_checks || return 1
     [ ! -e "$auth_file" ] && echo "you need to save a token with the auth" >&2 && return 1
 
     auth_token=$(base64 --decode <"$auth_file")
     latest_log_tag=$(latest_log_tag)
     latest_log_ver=$(rm_tag_prefix "$latest_log_tag")
+    # TODO: create function for this
     repo_url=$(remote_url_clean | sed "s|\(^.*\)\(github.com\)|\1api.\2/repos|")
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $log_file | sed "\$d")
@@ -340,6 +345,7 @@ post_release() {
     [ "$dry_run" = "true" ] &&
         printf "%s\n%s\n%s\n" "$repo_url" "$latest_log_tag" "$body" && return
 
+    # TODO: improve escaping
     curl -X POST "$repo_url/releases" \
         -H "Authorization: token $auth_token" \
         -H "Content-Type: application/json" \
@@ -348,7 +354,7 @@ post_release() {
 
 create_log() {
     [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
-    [ -e "$log_file" ] && echo "$log_file already exists" >&2 && return 1
+    [ -e $log_file ] && echo "$log_file already exists" >&2 && return 1
 
     first_tag=$(semver_git_tags | tail -n 1)
     [ ! "$first_tag" ] && echo "couldn't find any valid version tags" >&2 && return 2
@@ -374,15 +380,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 $(format_commits "$first_commits")
 
 [Unreleased]: $repo_url/compare/$first_tag...HEAD
-[$first_ver]: $repo_url/releases/tag/$first_tag" >"$log_file"
+[$first_ver]: $repo_url/releases/tag/$first_tag" >$log_file
 
-    [ ! -e "$log_file" ] &&
-        echo "something when wrong while creating $log_file" >&2 && return 1
+    [ ! -s $log_file ] &&
+        echo "something went wrong while creating $log_file" >&2 && return 1
     echo "created $log_file"
 }
 
 update_log() {
-    ! startup_checks && return 1
+    startup_checks || return 1
 
     latest_git_tag=$(semver_git_tags | head -1)
     latest_log_tag=$(latest_log_tag)
@@ -404,7 +410,7 @@ update_log() {
 
 run_all() {
     save_file=$(cat $log_file)
-    ! update_log && return 1
+    update_log || return 1
     first_change=$(stat -qf "%Sc" $log_file)
     ${EDITOR:-vi} $log_file
     last_change=$(stat -qf "%Sc" $log_file)
