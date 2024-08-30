@@ -355,7 +355,7 @@ post_command() {
         -H "Authorization: token $auth_token" \
         -H "Content-Type: application/json" \
         -d "{\"tag_name\": \"$top_tag\", \"name\": \"$top_tag\", \"body\": \"$body\" }"
-        # --data-urlencode "=$data"
+    # --data-urlencode "=$data"
 }
 
 init_command() {
@@ -390,30 +390,29 @@ update_command() {
     bump_version
 }
 
-# TODO: refactor
+# TODO: add prompt
 all_command() {
     backup=$(cat $log_file)
     update_command || return 1
 
-    last_changed=$(stat -qf "%Sc" $log_file)
+    last_changed=$(stat -qf '%Sc' $log_file)
     ${EDITOR:-vi} $log_file
-    [ $(stat -qf "%Sc" $log_file) = $last_changed ] &&
+    [ "$(stat -qf '%Sc' $log_file)" = "$last_changed" ] &&
         echo "cancelling because no manual edits were made to $log_file" >&2 &&
         echo "$backup" >$log_file &&
         return 1
 
     bump_version
-    push_tag="true"
+    push_tag='true'
     git add $log_file &&
-        git commit --quiet -m "docs: update changelog" && git push --quiet &&
+        git commit --quiet -m 'docs: update changelog' && git push --quiet &&
         tag_and_push && post_command
 }
 
 #### Args ####
 
-# TODO: refactor
 command=$1
-[ "$(expr "$command" : '-.*')" != 0 ] && command=''
+[ "${command#-}" != "$command" ] && command=''
 [ "$command" ] && shift
 
 while [ $# != 0 ]; do
