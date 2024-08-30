@@ -1,13 +1,10 @@
 #!/bin/sh
 
-# TODO: fix quotes
+version="0.14.5"
 log_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
 auth_file="$auth_dir/auth"
-change_version="0.14.5"
-nl="
-"
 
 usage() {
     echo "usage: change [COMMAND [ARGS]]
@@ -41,9 +38,11 @@ change version
     prints which version of the change tool is being used"
 }
 
+#### Tags ####
+
 semver_select() {
-    groups=$1
     # for full version use: '\1\2.\3.\4\5\9'
+    groups=$1
 
     sed -En "s,^(v)?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$,$groups,p"
 }
@@ -90,6 +89,12 @@ tag_date_or_today() {
     date +%F
 }
 
+latest_log_tag() {
+    sed -En 's,^\[Unreleased\]:.*/(.*)\.\.\.HEAD$,\1,p' $log_file
+}
+
+#### URLs ####
+
 remote_url() {
     git ls-remote --get-url 2>/dev/null
 }
@@ -99,10 +104,6 @@ remote_url_clean() {
         -e 's,https://.*@(.*),https://\1,' \
         -e 's,^git@(.*):(.*),https://\1/\2,'
 
-}
-
-latest_log_tag() {
-    sed -En 's,^\[Unreleased\]:.*/(.*)\.\.\.HEAD$,\1,p' $log_file
 }
 
 #### Commits ####
@@ -164,14 +165,12 @@ fmt_conv_type() {
 }
 
 fmt_commits() {
-    all_commits=$(echo "$1" | fmt_conv_type)
-
-    IFS="$nl"
-    for commit in $all_commits; do
-        first_char=$(echo "$commit" | cut -c 1 | tr "[:lower:]" "[:upper:]")
-
-        echo "$commit" | sed -e "s|^.\(.*$\)|- $first_char\1|" -e 's|\(.*[^.!?]\)$|\1.|'
+    while read -r commit; do
+        first_char=$(echo "$commit" | cut -c1 | tr '[:lower:]' '[:upper:]')
+        echo "$commit" | sed -e "s,^.\(.*$\),- $first_char\1," -e 's,\(.*[^.!?]\)$,\1.,'
     done
+
+    printf '\n'
 }
 
 commits_between() {
@@ -180,8 +179,7 @@ commits_between() {
     latest_log_tag=$3
     needed_tag=$4
 
-    highest_tag=$(printf "%s\n%s\n" "$latest_git_tag" "$needed_tag" |
-        sort -Vr | head -1)
+    highest_tag=$(printf '%s\n%s\n' "$latest_git_tag" "$needed_tag" | sort -Vr | head -1)
 
     tag_range="$latest_log_tag.."
     [ "$latest_git_tag" = "$highest_tag" ] && tag_range="$latest_log_tag..$needed_tag"
@@ -196,7 +194,6 @@ new_tag() {
     latest_changes=$1
     latest_git_tag=$2
 
-    # TODO: fix these return
     echo "$latest_changes" | filter_major_commits -q && inc_tag_major "$latest_git_tag" && return
     echo "$latest_changes" | filter_minor_commits -q && inc_tag_minor "$latest_git_tag" && return
     echo "$latest_changes" | filter_patch_commits -q && inc_tag_patch "$latest_git_tag" && return
@@ -217,10 +214,10 @@ format_commits() {
     fix=$(echo "$list" | filter_patch_commits)
     list=$(echo "$list" | filter_patch_commits -v)
 
-    [ "$dep" ] && echo "### BREAKING CHANGE" && fmt_commits "$dep" && echo
-    [ "$feat" ] && echo "### Added" && fmt_commits "$feat" && echo
-    [ "$fix" ] && echo "### Fixed" && fmt_commits "$fix" && echo
-    [ "$list" ] && echo "### Changed" && fmt_commits "$list" && echo
+    [ "$dep" ] && echo "### BREAKING CHANGE" && echo "$dep" | fmt_conv_type | fmt_commits
+    [ "$feat" ] && echo "### Added" && echo "$feat" | fmt_conv_type | fmt_commits
+    [ "$fix" ] && echo "### Fixed" && echo "$fix" | fmt_conv_type | fmt_commits
+    [ "$list" ] && echo "### Changed" && echo "$list" | fmt_conv_type | fmt_commits
 }
 
 needed_tags() {
@@ -252,6 +249,8 @@ update_diffs() {
     new_section="## [$needed_ver] - $(tag_date_or_today "$needed_tag")\\
 $(format_commits "$new_commits_head" "$new_commits_body" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
 
+    nl="
+"
     regex="s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|"
     sed -i.backup "$regex" $log_file && rm "${log_file}.backup"
 }
@@ -266,6 +265,8 @@ update_links() {
 
     new_link="[$needed_ver]: $repo_url/compare/$latest_log_tag...$needed_tag"
 
+    nl="
+"
     regex="s|\(^\[$latest_log_ver\]:.*$\)|$new_link\\$nl\1|"
     sed -i.backup "$regex" "$log_file" && rm "${log_file}.backup"
 
@@ -333,7 +334,8 @@ post_release() {
 
     diff=$(sed -n "/^## \[$latest_log_ver\] -.*/,/^## \[.*\] -.*/P" $log_file | sed "\$d")
     link=$(grep "^\[$latest_log_ver\]: .*" $log_file)
-    body=$(echo "$diff$nl$nl$link" | sed -e "s|\([\"\\]\)|\\\\\1|g" -e "s|$|\\\\|" | tr '\n' 'n')
+    # body=$(echo "$diff$nl$nl$link" | sed -e "s|\([\"\\]\)|\\\\\1|g" -e "s|$|\\\\|" | tr '\n' 'n')
+    body=$(printf '%s\n\n%s\n' "$diff" "$link" | sed -e "s|\([\"\\]\)|\\\\\1|g" -e "s|$|\\\\|" | tr '\n' 'n')
 
     [ "$dry_run" = "true" ] &&
         printf "%s\n%s\n%s\n" "$repo_url" "$latest_log_tag" "$body" && return
@@ -388,8 +390,7 @@ update_log() {
 
     [ ! "$all_needed_tags" ] && echo "no new versions to add" && return 1
 
-    IFS="$nl"
-    for needed_tag in $all_needed_tags; do
+    echo "$all_needed_tags" | while read -r needed_tag; do
         update_diffs "$latest_git_tag" "$latest_log_tag" "$needed_tag"
         update_links "$latest_log_tag" "$needed_tag"
         echo "added $needed_tag to $log_file"
@@ -397,10 +398,8 @@ update_log() {
         latest_log_tag="$needed_tag"
     done
 
-    # TODO: fix this return
-    [ ! "$command" ] && bump_version && return
-
-    return 0
+    [ "$command" ] && return 0
+    bump_version
 }
 
 run_all() {
@@ -424,19 +423,19 @@ run_all() {
 #### Args ####
 
 command=$1
-[ "$(expr "$command" : "-.*")" != 0 ] && command=""
+[ "$(expr "$command" : '-.*')" != 0 ] && command=''
 [ "$command" ] && shift
 
 while [ $# != 0 ]; do
     case $1 in
-    "-p") push_tag="true" ;;
-    "--dry-run") dry_run="true" ;;
-    "--bump") bump_script="$2" && shift ;;
-    "--bump="*) bump_script="${1#*=}" ;;
-    "--token") token="$2" && shift ;;
-    "--token="*) token="${1#*=}" ;;
-    "--help" | "-h") usage && exit ;;
-    "--version" | "-v") echo "$change_version" && exit ;;
+    '-p') push_tag='true' ;;
+    '--dry-run') dry_run='true' ;;
+    '--bump') bump_script="$2" && shift ;;
+    '--bump='*) bump_script="${1#*=}" ;;
+    '--token') token="$2" && shift ;;
+    '--token='*) token="${1#*=}" ;;
+    '--help' | '-h') usage && exit ;;
+    '--version' | '-v') echo "$version" && exit ;;
     *) echo "invalid argument: $1" >&2 && exit 1 ;;
     esac
 
@@ -444,15 +443,13 @@ while [ $# != 0 ]; do
 done
 
 case $command in
-"") update_log ;;
-"init") create_log ;;
-"auth") save_auth ;;
-"tag") tag_and_push ;;
-"post") post_release ;;
-"all") run_all ;;
-"help") usage ;;
-"version") echo "$change_version" ;;
+'') update_log ;;
+'init') create_log ;;
+'auth') save_auth ;;
+'tag') tag_and_push ;;
+'post') post_release ;;
+'all') run_all ;;
+'help') usage ;;
+'version') echo "$version" ;;
 *) echo "invalid command: $command" >&2 && exit 1 ;;
 esac
-
-exit
