@@ -84,7 +84,7 @@ rm_tag_prefix() {
 
 tag_date_or_today() {
     tag=$1
-    date=$(git log -1 --pretty=format:'%ci' "$tag" -- 2>/dev/null | cut -wf1)
+    date=$(git log -1 --pretty=format:'%ci' "$tag" -- 2>/dev/null | cut -d' ' -f1)
     [ "$date" ] && echo "$date" && return
     date +%F
 }
