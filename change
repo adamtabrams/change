@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# TODO: fix quotes
 log_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
@@ -40,16 +41,51 @@ change version
     prints which version of the change tool is being used"
 }
 
+semver_select() {
+    groups=$1
+    # for full version use: '\1\2.\3.\4\5\9'
+
+    sed -En "s,^(v)?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$,$groups,p"
+}
+
 filter_semver() {
-    sed -En 's,^(v|V)?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$,\1\2.\3.\4\5\9,p'
+    semver_select '\1\2.\3.\4\5\9'
 }
 
 semver_git_tags() {
-    git tag --list --sort="-v:refname" | filter_semver
+    git tag --list --sort='-v:refname' | filter_semver
 }
 
-tag_date() {
-    date=$(git log -1 --pretty=format:"%ci" "$1" 2>/dev/null | cut -d " " -f 1)
+inc_tag_major() {
+    tag=$1
+    major=$(echo "$tag" | semver_select '\2')
+    echo "$tag" | semver_select "\1$((major + 1)).0.0\5\9"
+}
+
+inc_tag_minor() {
+    tag=$1
+    minor=$(echo "$tag" | semver_select '\3')
+    echo "$tag" | semver_select "\1\2.$((minor + 1)).0\5\9"
+}
+
+inc_tag_patch() {
+    tag=$1
+    patch=$(echo "$tag" | semver_select '\4')
+    echo "$tag" | semver_select "\1\2.\3.$((patch + 1))\5\9"
+}
+
+rm_tag_suffix() {
+    semver_select '\1\2.\3.\4'
+}
+
+rm_tag_prefix() {
+    tag=$1
+    echo "${tag#v}"
+}
+
+tag_date_or_today() {
+    tag=$1
+    date=$(git log -1 --pretty=format:'%ci' "$tag" -- 2>/dev/null | cut -wf1)
     [ "$date" ] && echo "$date" && return
     date +%F
 }
@@ -59,36 +95,14 @@ remote_url() {
 }
 
 remote_url_clean() {
-    remote_url | sed -e "s|^git@\(.*\.com\):\(.*\)|https://\1/\2|" -e "s|\(.*\)\.git|\1|"
+    remote_url | sed -E -e 's,\.git$,,' \
+        -e 's,https://.*@(.*),https://\1,' \
+        -e 's,^git@(.*):(.*),https://\1/\2,'
+
 }
 
 latest_log_tag() {
-    sed -n "s|^\[Unreleased\]:.*/\(.*\)\.\.\.HEAD$|\1|p" $log_file
-}
-
-rm_tag_prefix() {
-    echo "$1" | sed "s|^[^0-9]*\([0-9.]*.*\)|\1|"
-}
-
-inc_tag_major() {
-    cur_major=$(echo "$1" | sed "s|^[^0-9]*\([0-9]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[0-9]*|.0|g" |
-        sed "s|\(^[^0-9]*\)[0-9]*\(\..*$\)|\1$((cur_major + 1))\2|"
-}
-
-inc_tag_minor() {
-    cur_minor=$(echo "$1" | sed "s|^.*\.\([0-9]*\)\..*$|\1|")
-    echo "$1" | sed "s|\.[0-9]*|.0|g" |
-        sed "s|\(^.*\.\)[0-9]*\(\..*$\)|\1$((cur_minor + 1))\2|"
-}
-
-inc_tag_patch() {
-    cur_patch=$(echo "$1" | sed "s|^.*\.\([0-9]*\).*$|\1|")
-    echo "$1" | sed "s|\(^.*\.\)[0-9]*\(.*$\)|\1$((cur_patch + 1))\2|"
-}
-
-rm_tag_suffix() {
-    sed "s|\(^[^0-9]*[0-9.]*\).*|\1|"
+    sed -En 's,^\[Unreleased\]:.*/(.*)\.\.\.HEAD$,\1,p' $log_file
 }
 
 #### Commits ####
@@ -235,7 +249,7 @@ update_diffs() {
     new_commits_head=$(commits_between "%s" "$latest_git_tag" "$latest_log_tag" "$needed_tag")
     new_commits_body=$(commits_between "%b" "$latest_git_tag" "$latest_log_tag" "$needed_tag")
 
-    new_section="## [$needed_ver] - $(tag_date "$needed_tag")\\
+    new_section="## [$needed_ver] - $(tag_date_or_today "$needed_tag")\\
 $(format_commits "$new_commits_head" "$new_commits_body" | sed -e "s|\([&\\]\)|\\\\\1|g" -e "s|$|\\\\|")"
 
     regex="s|\(^## \[$latest_log_ver\] -.*$\)|$new_section$nl\1|"
@@ -354,7 +368,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [$first_ver] - $(tag_date "$first_tag")
+## [$first_ver] - $(tag_date_or_today "$first_tag")
 $(format_commits "$first_commits")
 
 [Unreleased]: $repo_url/compare/$first_tag...HEAD
