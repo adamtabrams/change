@@ -4,7 +4,7 @@ change_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
 auth_file="$auth_dir/auth"
-change_version="0.14.4-remotes"
+change_version="0.14.4"
 nl="
 "
 
