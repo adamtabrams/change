@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2024-08-30
+### Added
+- Refactor everything (#25).
+
 ## [0.14.5] - 2024-08-29
 ### Fixed
 - Handle extra remotes and urls (#22).
@@ -229,7 +233,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.14.5...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.15.0...HEAD
+[0.15.0]: https://github.com/adamtabrams/change/compare/0.14.5...0.15.0
 [0.14.5]: https://github.com/adamtabrams/change/compare/0.14.4...0.14.5
 [0.14.4]: https://github.com/adamtabrams/change/compare/0.14.3...0.14.4
 [0.14.3]: https://github.com/adamtabrams/change/compare/0.14.2...0.14.3
