@@ -29,9 +29,9 @@ change post [--dry-run]
     optional: --dry-run prints url, version, and body without sending
 
 change all [--bump PATH]
-    runs change, then opens $log_file in \$EDITOR
+    runs 'change' then opens $log_file in \$EDITOR
     commits and pushes the $log_file
-    runs change tag -p and then runs change post
+    runs 'change tag -p' then 'change post'
     optional: --bump passes the newest version as an arg to a script at PATH
 
 change version
@@ -79,11 +79,6 @@ latest_inc_patch() {
     echo "$latest" | semver_select "\1\2.\3.$((patch + 1))"
 }
 
-trim_tag() {
-    tag=$1
-    echo "$tag" | semver_select '\2.\3.\4'
-}
-
 rm_tag_prefix() {
     tag=$1
     echo "${tag#v}"
@@ -114,7 +109,7 @@ unlogged_tags() {
     semver_git_tags | sed -n "/^$top_tag$/q;p" | sort -V
 
     latest_tag=$(semver_git_tags | head -1)
-    unlogged_commits=$(git log --pretty=format:"%B" "$latest_tag..")
+    unlogged_commits=$(git log --pretty=format:'%B' "$latest_tag..")
     [ ! "$unlogged_commits" ] && return
     calc_new_tag "$unlogged_commits"
 }
@@ -135,60 +130,60 @@ remote_url_clean() {
 #### Commits ####
 
 grep_commits_major() {
-    flags="-e" # use '-v' for inverse or '-q' for quiet
+    flags='-e' # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
 
-    grep "$flags" "^[A-Za-z]*!: " \
-        -e "^[A-Za-z]*(.*)!: " \
-        -e "^[*-] *[A-Za-z]*!: " \
-        -e "^[*-] *[A-Za-z]*(.*)!: " \
-        -e "^BREAKING[ -]CHANGE: " \
-        -e "^[*-] *BREAKING[ -]CHANGE: " \
-        -e "^BREAKING[ -]CHANGE"
+    grep "$flags" '^[A-Za-z]*!: ' \
+        -e '^[A-Za-z]*(.*)!: ' \
+        -e '^[*-] *[A-Za-z]*!: ' \
+        -e '^[*-] *[A-Za-z]*(.*)!: ' \
+        -e '^BREAKING[ -]CHANGE: ' \
+        -e '^[*-] *BREAKING[ -]CHANGE: ' \
+        -e '^BREAKING[ -]CHANGE'
 }
 
 grep_commits_minor() {
-    flags="-e" # use '-v' for inverse or '-q' for quiet
+    flags='-e' # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
 
-    grep -i "$flags" "^feat: " \
-        -e "^feat(.*): " \
-        -e "^[*-] *feat: " \
-        -e "^[*-] *feat(.*): "
+    grep -i "$flags" '^feat: ' \
+        -e '^feat(.*): ' \
+        -e '^[*-] *feat: ' \
+        -e '^[*-] *feat(.*): '
 }
 
 grep_commits_patch() {
-    flags="-e" # use '-v' for inverse or '-q' for quiet
+    flags='-e' # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
 
-    grep -i "$flags" "^fix: " \
-        -e "^fix(.*): " \
-        -e "^[*-] *fix: " \
-        -e "^[*-] *fix(.*): "
+    grep -i "$flags" '^fix: ' \
+        -e '^fix(.*): ' \
+        -e '^[*-] *fix: ' \
+        -e '^[*-] *fix(.*): '
 }
 
 grep_conv_commits() {
-    grep -e "^[A-Za-z]*: " -e "^[A-Za-z]*(.*): " \
-        -e "^[*-] *[A-Za-z]*: " -e "^[*-] *[A-Za-z]*(.*): " \
-        -e "^[A-Za-z]*!: " -e "^[A-Za-z]*(.*)!: " \
-        -e "^[*-] *[A-Za-z]*!: " -e "^[*-] *[A-Za-z]*(.*)!: " \
-        -e "^BREAKING[ -]CHANGE: " -e "^[*-] *BREAKING[ -]CHANGE: " \
-        -e "^BREAKING[ -]CHANGE"
+    grep -e '^[A-Za-z]*: ' -e '^[A-Za-z]*(.*): ' \
+        -e '^[*-] *[A-Za-z]*: ' -e '^[*-] *[A-Za-z]*(.*): ' \
+        -e '^[A-Za-z]*!: ' -e '^[A-Za-z]*(.*)!: ' \
+        -e '^[*-] *[A-Za-z]*!: ' -e '^[*-] *[A-Za-z]*(.*)!: ' \
+        -e '^BREAKING[ -]CHANGE: ' -e '^[*-] *BREAKING[ -]CHANGE: ' \
+        -e '^BREAKING[ -]CHANGE'
 }
 
 fmt_conv_type() {
     sed -E \
-        -e "s,^[A-Za-z]*: (.*$),\1,g" \
-        -e "s,^[A-Za-z]*\((.*)\): (.*$),\2 for \1,g" \
-        -e "s,^[*-] *[A-Za-z]*: (.*$),\1,g" \
-        -e "s,^[*-] *[A-Za-z]*\((.*)\): (.*$),\2 for \1,g" \
-        -e "s,^[A-Za-z]*!: (.*$),\1,g" \
-        -e "s,^[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g" \
-        -e "s,^[*-] *[A-Za-z]*!: (.*$),\1,g" \
-        -e "s,^[*-] *[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g" \
-        -e "s,^BREAKING[ -]CHANGE: (.*$),\1,g" \
-        -e "s,^[*-] *BREAKING[ -]CHANGE: (.*$),\1,g" \
-        -e "s,^BREAKING[ -]CHANGE,a breaking change,g"
+        -e 's,^[A-Za-z]*: (.*$),\1,g' \
+        -e 's,^[A-Za-z]*\((.*)\): (.*$),\2 for \1,g' \
+        -e 's,^[*-] *[A-Za-z]*: (.*$),\1,g' \
+        -e 's,^[*-] *[A-Za-z]*\((.*)\): (.*$),\2 for \1,g' \
+        -e 's,^[A-Za-z]*!: (.*$),\1,g' \
+        -e 's,^[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g' \
+        -e 's,^[*-] *[A-Za-z]*!: (.*$),\1,g' \
+        -e 's,^[*-] *[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g' \
+        -e 's,^BREAKING[ -]CHANGE: (.*$),\1,g' \
+        -e 's,^[*-] *BREAKING[ -]CHANGE: (.*$),\1,g' \
+        -e 's,^BREAKING[ -]CHANGE,a breaking change,g'
 }
 
 fmt_commits() {
@@ -213,8 +208,8 @@ next_commit_range() {
 format_commits() {
     commit_range=$1
 
-    sub=$(git log --pretty=format:"%s" "$commit_range")
-    bod=$(git log --pretty=format:"%b" "$commit_range" | grep_conv_commits)
+    sub=$(git log --pretty=format:'%s' "$commit_range")
+    bod=$(git log --pretty=format:'%b' "$commit_range" | grep_conv_commits)
     list=$(printf '%s\n%s' "$sub" "$bod")
 
     dep=$(echo "$list" | grep_commits_major)
@@ -226,10 +221,10 @@ format_commits() {
     fix=$(echo "$list" | grep_commits_patch)
     list=$(echo "$list" | grep_commits_patch -v)
 
-    [ "$dep" ] && echo "### BREAKING CHANGE" && echo "$dep" | fmt_conv_type | fmt_commits
-    [ "$feat" ] && echo "### Added" && echo "$feat" | fmt_conv_type | fmt_commits
-    [ "$fix" ] && echo "### Fixed" && echo "$fix" | fmt_conv_type | fmt_commits
-    [ "$list" ] && echo "### Changed" && echo "$list" | fmt_conv_type | fmt_commits
+    [ "$dep" ] && echo '### BREAKING CHANGE' && echo "$dep" | fmt_conv_type | fmt_commits
+    [ "$feat" ] && echo '### Added' && echo "$feat" | fmt_conv_type | fmt_commits
+    [ "$fix" ] && echo '### Fixed' && echo "$fix" | fmt_conv_type | fmt_commits
+    [ "$list" ] && echo '### Changed' && echo "$list" | fmt_conv_type | fmt_commits
 }
 
 #### Utils ####
@@ -288,10 +283,10 @@ bump_version() {
 }
 
 startup_checks() {
-    [ ! -f $log_file ] && echo "couldn't find $log_file" >&2 && return 1
-    [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
+    [ ! -f $log_file ] && echo "could not find $log_file" >&2 && return 1
+    [ ! -d .git ] && echo 'the current directory does not contain .git' >&2 && return 1
     remote_url >/dev/null && return
-    echo "cannot find remote url for this repo" >&2 && return 1
+    echo 'cannot find remote url for this repo' >&2 && return 1
 }
 
 #### Commands ####
@@ -307,50 +302,50 @@ tag_command() {
     [ "$push_tag" ] &&
         git push --quiet "$repo_url" "$top_tag" && echo "pushed $top_tag to $repo_url" && return
 
-    printf "to push the latest tag use:\n\tgit push %s %s\n" "$repo_url" "$top_tag"
-    printf "to push all local tags use:\n\tgit push %s --tags\n" "$repo_url"
+    printf 'to push the latest tag use:\n\tgit push %s %s\n' "$repo_url" "$top_tag"
+    printf 'to push all local tags use:\n\tgit push %s --tags\n' "$repo_url"
 }
 
 auth_command() {
-    [ ! "$token" ] && echo "enter a personal access token" && printf "token: " && read -r token
-    [ ! "$token" ] && echo "invalid token" >&2 && return 1
+    [ ! "$token" ] && echo 'enter a personal access token' && printf 'token: ' && read -r token
+    [ ! "$token" ] && echo 'invalid token' >&2 && return 1
     [ ! -d "$auth_dir" ] && mkdir -p "$auth_dir"
-    echo "$token" | base64 >"$auth_file" && echo "git auth saved"
+    echo "$token" | base64 >"$auth_file" && echo 'git auth saved'
 }
 
 post_command() {
     startup_checks || return 1
-    [ ! -e "$auth_file" ] && echo "you need to save a token with the auth" >&2 && return 1
+    [ ! -e "$auth_file" ] && echo 'you need to save a token with the auth command' >&2 && return 1
 
     auth_token=$(<"$auth_file" base64 --decode)
     top_tag=$(top_log_tag)
     top_ver=$(rm_tag_prefix "$top_tag")
-    api_url=$(remote_url_clean | sed -E "s|^(.*)(github.com)|\1api.\2/repos|")
+    api_url=$(remote_url_clean | sed -E 's|^(.*)(github.com)|\1api.\2/repos|')
 
     link=$(grep "^\[$top_ver\]: https:[^ ]*$" $log_file)
     entry=$(sed -n "/^## \[$top_ver\] - [1-9][0-9-]*$/,/^## \[..*\] - [1-9][0-9-]*$/p" $log_file |
         sed '$d')
 
     body=$(printf '%s\n\n%s\n' "$entry" "$link" |
-        sed -E -e "s,([\"\\]),\\\\\1,g" -e "s,$,\\\\n," | tr -d '\n')
+        sed -E -e 's,(["\]),\\\1,g' -e 's,$,\\n,' | tr -d '\n')
 
-    [ "$dry_run" ] && printf "%s\n%s\n%s\n" "$api_url" "$top_tag" "$body" && return
+    [ "$dry_run" ] && printf '%s\n%s\n%s\n' "$api_url" "$top_tag" "$body" && return
 
     curl -L -X POST "$api_url/releases" \
         -H "Authorization: token $auth_token" \
-        -H "Accept: application/vnd.github+json" \
+        -H 'Accept: application/vnd.github+json' \
         -d "{\"tag_name\": \"$top_tag\", \"name\": \"$top_tag\", \"body\": \"$body\" }"
 }
 
 init_command() {
-    [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
+    [ ! -d .git ] && echo 'the current directory does not contain .git' >&2 && return 1
     [ -e $log_file ] && echo "$log_file already exists" >&2 && return 1
 
     oldest_tag=$(semver_git_tags | tail -n 1)
-    [ ! "$oldest_tag" ] && echo "couldn't find any valid version tags" >&2 && return 2
+    [ ! "$oldest_tag" ] && echo 'could not find any valid version tags' >&2 && return 2
 
     repo_url=$(remote_url_clean)
-    [ ! "$repo_url" ] && echo "remote url isn't set for this repo" >&2 && return 1
+    [ ! "$repo_url" ] && echo 'remote url is not set for this repo' >&2 && return 1
 
     initial_log "$oldest_tag" >$log_file
 
@@ -361,7 +356,7 @@ init_command() {
 update_command() {
     startup_checks || return 1
     tags=$(unlogged_tags)
-    [ ! "$tags" ] && echo "no new versions to add" && return 1
+    [ ! "$tags" ] && echo 'no new versions to add' && return 1
 
     echo "$tags" | while read -r next_tag; do
         new_log=$(add_to_log "$next_tag")
@@ -374,7 +369,6 @@ update_command() {
     bump_version
 }
 
-# TODO: test
 all_command() {
     backup=$(cat $log_file)
     update_command || return 1
@@ -385,7 +379,7 @@ all_command() {
 
     [ "$old_last_changed" = "$new_last_changed" ] &&
         echo "no manual edits were made to $log_file" >&2 &&
-        printf "do you want cancel? (Y/n) " >&2 &&
+        printf 'do you want cancel? (Y/n) ' >&2 &&
         read -r response &&
         [ "$response" != 'n' ] &&
         echo "$backup" >$log_file &&
