@@ -389,7 +389,7 @@ all_command() {
     push_tag='true'
     git add $log_file &&
         git commit --quiet -m 'docs: update changelog' && git push --quiet &&
-        tag_and_push && post_command
+        tag_command && post_command
 }
 
 #### Args ####
