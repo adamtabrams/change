@@ -1,6 +1,6 @@
 #!/bin/sh
 
-version="0.15.0"
+version="0.15.1"
 log_file="CHANGELOG.md"
 xdg_data_home=${XDG_DATA_HOME:-$HOME/.local/share}
 auth_dir="$xdg_data_home/change/"
