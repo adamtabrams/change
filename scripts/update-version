@@ -1,15 +1,13 @@
 #!/bin/sh
 
 new_version=$1
-version_file="change"
+version_file='change'
 
-[ ! -e $version_file ] &&
-    { echo "$version_file not found in current directory"; exit 1; }
+[ ! -f $version_file ] && echo "$version_file not found in current directory" >&2 && exit 1
 
-sed -i.backup "s|\(^change_version=\"\).*\(\"$\)|\1$new_version\2|" $version_file &&
-    rm "${version_file}.backup" &&
-    git add "$version_file" &&
-    { echo "success - changed version to $new_version"; exit 0; }
+sed -E -i.backup "s,^(version=\").*(\")$,\1$new_version\2," "$version_file" &&
+    rm "$version_file.backup" && git add "$version_file" &&
+    echo "success: changed version to $new_version" && exit
 
-echo "failure - something when wrong"
+echo "failure: something when wrong" >&2
 exit 1
