@@ -9,7 +9,7 @@ git commit --quiet -am "fix: add second file"
 git tag 0.1.0
 
 git add exp-stderr
-git commit --quiet -am "fix: tilda ~ escaped tick \` ampersand &"
+git commit --quiet -am "fix: tilda ~ escaped tick \` ampersand & bar | end"
 git rm --quiet --cached exp-stderr
 git commit --quiet -am "chore: escaped apostrophe \' escaped quote \""
 
@@ -37,7 +37,6 @@ git add exp-stderr
 git commit --quiet -am "fix: (paren pair) {curly pair} [square pair]"
 git rm --quiet --cached exp-stderr
 git commit --quiet -am "chore: [file link](./run-test)"
-
 
 git remote add origin https://github.com/adamtabrams/change.git
 
