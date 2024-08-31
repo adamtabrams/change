@@ -64,28 +64,24 @@ tag_exists() {
 latest_inc_major() {
     latest=$(semver_git_tags | head -1)
     major=$(echo "$latest" | semver_select '\2')
-    echo "$latest" | semver_select "\1$((major + 1)).0.0\5\9"
+    echo "$latest" | semver_select "\1$((major + 1)).0.0"
 }
 
 latest_inc_minor() {
     latest=$(semver_git_tags | head -1)
     minor=$(echo "$latest" | semver_select '\3')
-    echo "$latest" | semver_select "\1\2.$((minor + 1)).0\5\9"
+    echo "$latest" | semver_select "\1\2.$((minor + 1)).0"
 }
 
 latest_inc_patch() {
     latest=$(semver_git_tags | head -1)
     patch=$(echo "$latest" | semver_select '\4')
-    echo "$latest" | semver_select "\1\2.\3.$((patch + 1))\5\9"
+    echo "$latest" | semver_select "\1\2.\3.$((patch + 1))"
 }
 
 trim_tag() {
     tag=$1
     echo "$tag" | semver_select '\2.\3.\4'
-}
-
-rm_tag_suffix() {
-    semver_select '\1\2.\3.\4'
 }
 
 rm_tag_prefix() {
@@ -104,6 +100,25 @@ top_log_tag() {
     sed -En 's,^\[Unreleased\]:.*/(.*)\.\.\.HEAD$,\1,p' $log_file
 }
 
+calc_new_tag() {
+    latest_changes=$1
+
+    echo "$latest_changes" | grep_commits_major -q && latest_inc_major && return
+    echo "$latest_changes" | grep_commits_minor -q && latest_inc_minor && return
+    echo "$latest_changes" | grep_commits_patch -q && latest_inc_patch && return
+}
+
+unlogged_tags() {
+    top_tag=$(top_log_tag)
+    tag_exists "$top_tag" || return 0
+    semver_git_tags | sed -n "/^$top_tag$/q;p" | sort -V
+
+    latest_tag=$(semver_git_tags | head -1)
+    unlogged_commits=$(git log --pretty=format:"%B" "$latest_tag..")
+    [ ! "$unlogged_commits" ] && return
+    calc_new_tag "$unlogged_commits"
+}
+
 #### URLs ####
 
 remote_url() {
@@ -119,7 +134,6 @@ remote_url_clean() {
 
 #### Commits ####
 
-# TODO: refine regex
 grep_commits_major() {
     flags="-e" # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
@@ -133,7 +147,6 @@ grep_commits_major() {
         -e "^BREAKING[ -]CHANGE"
 }
 
-# TODO: refine regex
 grep_commits_minor() {
     flags="-e" # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
@@ -144,7 +157,6 @@ grep_commits_minor() {
         -e "^[*-] *feat(.*): "
 }
 
-# TODO: refine regex
 grep_commits_patch() {
     flags="-e" # use '-v' for inverse or '-q' for quiet
     [ "$1" ] && flags="${1}e"
@@ -155,8 +167,7 @@ grep_commits_patch() {
         -e "^[*-] *fix(.*): "
 }
 
-# TODO: refine regex
-filter_conv_commits() {
+grep_conv_commits() {
     grep -e "^[A-Za-z]*: " -e "^[A-Za-z]*(.*): " \
         -e "^[*-] *[A-Za-z]*: " -e "^[*-] *[A-Za-z]*(.*): " \
         -e "^[A-Za-z]*!: " -e "^[A-Za-z]*(.*)!: " \
@@ -165,20 +176,19 @@ filter_conv_commits() {
         -e "^BREAKING[ -]CHANGE"
 }
 
-# TODO: refine regex
-# TODO: reconsider use of sed
 fmt_conv_type() {
-    sed -e "s|^[A-Za-z]*: \(.*$\)|\1|g" \
-        -e "s|^[A-Za-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
-        -e "s|^[*-] *[A-Za-z]*: \(.*$\)|\1|g" \
-        -e "s|^[*-] *[A-Za-z]*(\(.*\)): \(.*$\)|\2 for \1|g" \
-        -e "s|^[A-Za-z]*!: \(.*$\)|\1|g" \
-        -e "s|^[A-Za-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
-        -e "s|^[*-] *[A-Za-z]*!: \(.*$\)|\1|g" \
-        -e "s|^[*-] *[A-Za-z]*(\(.*\))!: \(.*$\)|\2 for \1|g" \
-        -e "s|^BREAKING[ -]CHANGE: \(.*$\)|\1|g" \
-        -e "s|^[*-] *BREAKING[ -]CHANGE: \(.*$\)|\1|g" \
-        -e "s|^BREAKING[ -]CHANGE|a breaking change|g"
+    sed -E \
+        -e "s,^[A-Za-z]*: (.*$),\1,g" \
+        -e "s,^[A-Za-z]*\((.*)\): (.*$),\2 for \1,g" \
+        -e "s,^[*-] *[A-Za-z]*: (.*$),\1,g" \
+        -e "s,^[*-] *[A-Za-z]*\((.*)\): (.*$),\2 for \1,g" \
+        -e "s,^[A-Za-z]*!: (.*$),\1,g" \
+        -e "s,^[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g" \
+        -e "s,^[*-] *[A-Za-z]*!: (.*$),\1,g" \
+        -e "s,^[*-] *[A-Za-z]*\((.*)\)!: (.*$),\2 for \1,g" \
+        -e "s,^BREAKING[ -]CHANGE: (.*$),\1,g" \
+        -e "s,^[*-] *BREAKING[ -]CHANGE: (.*$),\1,g" \
+        -e "s,^BREAKING[ -]CHANGE,a breaking change,g"
 }
 
 fmt_commits() {
@@ -200,21 +210,11 @@ next_commit_range() {
     echo "$range"
 }
 
-#### Utils ####
-
-calc_new_tag() {
-    latest_changes=$1
-
-    echo "$latest_changes" | grep_commits_major -q && latest_inc_major && return
-    echo "$latest_changes" | grep_commits_minor -q && latest_inc_minor && return
-    echo "$latest_changes" | grep_commits_patch -q && latest_inc_patch && return
-}
-
 format_commits() {
     commit_range=$1
 
     sub=$(git log --pretty=format:"%s" "$commit_range")
-    bod=$(git log --pretty=format:"%b" "$commit_range" | filter_conv_commits)
+    bod=$(git log --pretty=format:"%b" "$commit_range" | grep_conv_commits)
     list=$(printf '%s\n%s' "$sub" "$bod")
 
     dep=$(echo "$list" | grep_commits_major)
@@ -232,35 +232,7 @@ format_commits() {
     [ "$list" ] && echo "### Changed" && echo "$list" | fmt_conv_type | fmt_commits
 }
 
-# TODO: fix suffix handling
-unlogged_tags() {
-    top_tag=$(top_log_tag)
-    tag_exists "$top_tag" || return 0
-    semver_git_tags | sed -n "/^$top_tag$/q;p" | sort -V
-
-    latest_tag=$(semver_git_tags | head -1)
-    unlogged_commits=$(git log --pretty=format:"%B" "$latest_tag..")
-    [ ! "$unlogged_commits" ] && return
-    calc_new_tag "$unlogged_commits" | rm_tag_suffix
-}
-
-startup_checks() {
-    [ ! -f $log_file ] && echo "couldn't find $log_file" >&2 && return 1
-    [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
-    remote_url >/dev/null && return
-    echo "cannot find remote url for this repo" >&2 && return 1
-}
-
-bump_version() {
-    [ ! "$bump_script" ] && return
-    [ ! -f "$bump_script" ] && echo "script not found: $bump_script" >&2 && return 1
-
-    top_tag=$(top_log_tag)
-    [ -x "$bump_script" ] &&
-        echo "executing $bump_script $top_tag" && "$bump_script" "$top_tag"
-    [ ! -x "$bump_script" ] &&
-        echo "executing sh $bump_script $top_tag" && sh "$bump_script" "$top_tag"
-}
+#### Utils ####
 
 initial_log() {
     oldest_tag=$1
@@ -284,7 +256,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [$oldest_ver]: $repo_url/releases/tag/$oldest_tag"
 }
 
-# TODO: handle prefix and suffix trimming
 add_to_log() {
     next_tag=$1
 
@@ -303,6 +274,24 @@ add_to_log() {
     echo "[Unreleased]: $repo_url/compare/$next_tag...HEAD"
     echo "[$next_ver]: $repo_url/compare/$top_tag...$next_tag"
     sed -n "/^\[$top_ver\]: https:[^ ]*$/,\$p" $log_file
+}
+
+bump_version() {
+    [ ! "$bump_script" ] && return
+    [ ! -f "$bump_script" ] && echo "script not found: $bump_script" >&2 && return 1
+
+    top_tag=$(top_log_tag)
+    [ -x "$bump_script" ] &&
+        echo "executing $bump_script $top_tag" && "$bump_script" "$top_tag"
+    [ ! -x "$bump_script" ] &&
+        echo "executing sh $bump_script $top_tag" && sh "$bump_script" "$top_tag"
+}
+
+startup_checks() {
+    [ ! -f $log_file ] && echo "couldn't find $log_file" >&2 && return 1
+    [ ! -d .git ] && echo "the current directory doesn't contain .git" >&2 && return 1
+    remote_url >/dev/null && return
+    echo "cannot find remote url for this repo" >&2 && return 1
 }
 
 #### Commands ####
@@ -329,7 +318,6 @@ auth_command() {
     echo "$token" | base64 >"$auth_file" && echo "git auth saved"
 }
 
-# TODO: test
 post_command() {
     startup_checks || return 1
     [ ! -e "$auth_file" ] && echo "you need to save a token with the auth" >&2 && return 1
@@ -343,19 +331,15 @@ post_command() {
     entry=$(sed -n "/^## \[$top_ver\] - [1-9][0-9-]*$/,/^## \[..*\] - [1-9][0-9-]*$/p" $log_file |
         sed '$d')
 
-    # body=$(printf '%s\n\n%s\n' "$entry" "$link")
     body=$(printf '%s\n\n%s\n' "$entry" "$link" |
-        sed -E -e "s,([\"\\]),\\\\\1,g" -e "s,$,\\\\," | tr '\n' 'n')
+        sed -E -e "s,([\"\\]),\\\\\1,g" -e "s,$,\\\\n," | tr -d '\n')
 
     [ "$dry_run" ] && printf "%s\n%s\n%s\n" "$api_url" "$top_tag" "$body" && return
 
-    # data=$(printf '{"tag_name": "%s", "name": "%s", "body": "%s"}' "$top_tag" "$top_tag" "$body")
-
-    curl -X POST "$api_url/releases" \
+    curl -L -X POST "$api_url/releases" \
         -H "Authorization: token $auth_token" \
-        -H "Content-Type: application/json" \
+        -H "Accept: application/vnd.github+json" \
         -d "{\"tag_name\": \"$top_tag\", \"name\": \"$top_tag\", \"body\": \"$body\" }"
-    # --data-urlencode "=$data"
 }
 
 init_command() {
@@ -390,17 +374,22 @@ update_command() {
     bump_version
 }
 
-# TODO: add prompt
+# TODO: test
 all_command() {
     backup=$(cat $log_file)
     update_command || return 1
 
-    last_changed=$(stat -qf '%Sc' $log_file)
+    old_last_changed=$(stat -qf '%Sc' $log_file)
     ${EDITOR:-vi} $log_file
-    [ "$(stat -qf '%Sc' $log_file)" = "$last_changed" ] &&
-        echo "cancelling because no manual edits were made to $log_file" >&2 &&
+    new_last_changed=$(stat -qf '%Sc' $log_file)
+
+    [ "$old_last_changed" = "$new_last_changed" ] &&
+        echo "no manual edits were made to $log_file" >&2 &&
+        printf "do you want cancel? (Y/n) " >&2 &&
+        read -r response &&
+        [ "$response" != 'n' ] &&
         echo "$backup" >$log_file &&
-        return 1
+        return
 
     bump_version
     push_tag='true'
