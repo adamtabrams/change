@@ -57,8 +57,7 @@ semver_git_tags() {
 
 tag_exists() {
     tag=$1
-    semver_git_tags | grep -q "^$tag$" && return
-    return 1
+    semver_git_tags | grep -q "^$tag$"
 }
 
 latest_inc_major() {
@@ -86,32 +85,13 @@ rm_tag_prefix() {
 
 tag_date_or_today() {
     tag=$1
-    date=$(git log -1 --pretty=format:'%ci' "$tag" -- 2>/dev/null | cut -d' ' -f1)
+    date=$(git log -1 --pretty=format:'%ci' "$tag" -- 2>/dev/null | cut -d' ' -f1) || date=''
     [ "$date" ] && echo "$date" && return
     date +%F
 }
 
 top_log_tag() {
     sed -En 's,^\[Unreleased\]:.*/(.*)\.\.\.HEAD$,\1,p' $log_file
-}
-
-calc_new_tag() {
-    latest_changes=$1
-
-    echo "$latest_changes" | grep_commits_major -q && latest_inc_major && return
-    echo "$latest_changes" | grep_commits_minor -q && latest_inc_minor && return
-    echo "$latest_changes" | grep_commits_patch -q && latest_inc_patch && return
-}
-
-unlogged_tags() {
-    top_tag=$(top_log_tag)
-    tag_exists "$top_tag" || return 0
-    semver_git_tags | sed -n "/^$top_tag$/q;p" | sort -V
-
-    latest_tag=$(semver_git_tags | head -1)
-    unlogged_commits=$(git log --pretty=format:'%B' "$latest_tag..")
-    [ ! "$unlogged_commits" ] && return
-    calc_new_tag "$unlogged_commits"
 }
 
 #### URLs ####
@@ -229,6 +209,25 @@ format_commits() {
 
 #### Utils ####
 
+calc_new_tag() {
+    latest_changes=$1
+
+    echo "$latest_changes" | grep_commits_major -q && latest_inc_major && return
+    echo "$latest_changes" | grep_commits_minor -q && latest_inc_minor && return
+    echo "$latest_changes" | grep_commits_patch -q && latest_inc_patch && return
+}
+
+unlogged_tags() {
+    top_tag=$(top_log_tag)
+    tag_exists "$top_tag" || return 0
+    semver_git_tags | sed -n "/^$top_tag$/q;p" | sort -V
+
+    latest_tag=$(semver_git_tags | head -1)
+    unlogged_commits=$(git log --pretty=format:'%B' "$latest_tag..")
+    [ ! "$unlogged_commits" ] && return
+    calc_new_tag "$unlogged_commits"
+}
+
 initial_log() {
     oldest_tag=$1
 
@@ -299,11 +298,13 @@ tag_command() {
     git tag "$top_tag" || return 1
     echo "tagged latest commit as $top_tag"
 
-    [ "$push_tag" ] &&
-        git push --quiet "$repo_url" "$top_tag" && echo "pushed $top_tag to $repo_url" && return
+    [ ! "$push_tag" ] &&
+        printf 'to push the latest tag use:\n\tgit push %s %s\n' "$repo_url" "$top_tag" &&
+        printf 'to push all local tags use:\n\tgit push %s --tags\n' "$repo_url" &&
+        return
 
-    printf 'to push the latest tag use:\n\tgit push %s %s\n' "$repo_url" "$top_tag"
-    printf 'to push all local tags use:\n\tgit push %s --tags\n' "$repo_url"
+    git push --quiet "$repo_url" "$top_tag" || return 1
+    echo "pushed $top_tag to $repo_url"
 }
 
 auth_command() {
@@ -359,11 +360,14 @@ update_command() {
     [ ! "$tags" ] && echo 'no new versions to add' && return 1
 
     echo "$tags" | while read -r next_tag; do
-        new_log=$(add_to_log "$next_tag")
-        echo "$new_log" >$log_file
+        new_log=$(add_to_log "$next_tag") || new_log=''
 
+        [ ! "$new_log" ] && echo "something went wrong processing $next_tag" && return 1
+
+        echo "$new_log" >$log_file
         echo "added $next_tag to $log_file"
     done
+    [ $? = 1 ] && return 1
 
     [ "$command" ] && return 0
     bump_version
