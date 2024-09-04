@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.2] - 2024-09-03
+### Fixed
+- Improve error handling (#30).
+
 ## [0.15.1] - 2024-08-30
 ### Fixed
 - All command was not properly tagging.
@@ -237,7 +241,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created a proof of concept for a changelog updater.
 
-[Unreleased]: https://github.com/adamtabrams/change/compare/0.15.1...HEAD
+[Unreleased]: https://github.com/adamtabrams/change/compare/0.15.2...HEAD
+[0.15.2]: https://github.com/adamtabrams/change/compare/0.15.1...0.15.2
 [0.15.1]: https://github.com/adamtabrams/change/compare/0.15.0...0.15.1
 [0.15.0]: https://github.com/adamtabrams/change/compare/0.14.5...0.15.0
 [0.14.5]: https://github.com/adamtabrams/change/compare/0.14.4...0.14.5
